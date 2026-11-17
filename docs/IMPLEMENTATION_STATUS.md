@@ -52,6 +52,11 @@ All 4 workspace packages (`@braindrop/core`, `@braindrop/ai-logic`, `@braindrop/
 - [x] **Root Layout & Navigation (`layout.tsx`):**
   - Sticky glassmorphic navbar with logo, 4 navigation links, Nano capability checking badge, and Demo Mode toggle.
   - Persistent Telemetry HUD bar anchored at viewport bottom displaying On-Device, Cloud, and Simulated counts, alongside bytes preserved locally.
+- [x] **Smart Capture & Web Clipper (`(dashboard)/capture/page.tsx`):**
+  - Multi-modal ingestion interface with 3 specialized modes: Quick Note / Thought Dump, Web Clipper URL Scraper, and Voice Memo with real-time Web Speech API transcription.
+  - Direct integration into Zustand store (`addClipNote`) ensuring any captured item immediately enters the vault and appears in `/notes`.
+  - Dedicated Web Scraper API Route (`api/clips/scrape/route.ts`) extracting page title, OpenGraph metadata, and readable excerpts with resilient fallback.
+  - Extension synchronization bridge (`importClipsFromApi`) polling `/api/clips` buffer to pull clips recorded by the Chrome MV3 Extension.
 - [x] **Landing Page (`page.tsx`):** High-contrast hero section with gradient headings, 6 interactive feature showcase cards, 3-tier hybrid architecture comparison grid, and competition footer.
 - [x] **Smart Note Workspace (`(dashboard)/notes/page.tsx`):**
   - Production Tiptap WYSIWYG editor with Markdown storage (`tiptap-markdown`), Task Lists (checkboxes), Floating Bubble Menu, and Clean Header formatting toolbar.

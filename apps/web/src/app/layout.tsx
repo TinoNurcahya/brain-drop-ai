@@ -31,6 +31,7 @@ function Navbar() {
           {/* Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {[
+              { href: "/capture", label: "Capture", icon: "⚡" },
               { href: "/notes", label: "Notes", icon: "📝" },
               { href: "/graph", label: "Graph", icon: "🕸️" },
               { href: "/flashcards", label: "Cards", icon: "🃏" },

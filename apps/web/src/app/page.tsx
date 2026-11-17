@@ -36,7 +36,7 @@ export default function LandingPage() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
-                href="/notes"
+                href="/capture"
                 className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white font-semibold text-base hover:opacity-90 transition-opacity shadow-lg shadow-[var(--accent-blue)]/25"
               >
                 Start Capturing →
