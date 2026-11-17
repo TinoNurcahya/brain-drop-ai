@@ -1,212 +1,402 @@
 "use client";
 
-import { useState } from "react";
-
-interface NoteItem {
-  id: string;
-  title: string;
-  preview: string;
-  tags: string[];
-  isClip: boolean;
-  updatedAt: string;
-}
-
-const DEMO_NOTES: NoteItem[] = [
-  {
-    id: "1",
-    title: "Firebase AI Logic — Hybrid Inference Guide",
-    preview: "Firebase AI Logic provides a single SDK for running prompts on-device with Gemini Nano and falling back to cloud models...",
-    tags: ["firebase", "ai", "hybrid"],
-    isClip: true,
-    updatedAt: "2m ago",
-  },
-  {
-    id: "2",
-    title: "React Server Components vs Client Components",
-    preview: "Server Components render on the server and send HTML to the client. They cannot use hooks or browser APIs...",
-    tags: ["react", "nextjs", "architecture"],
-    isClip: false,
-    updatedAt: "1h ago",
-  },
-  {
-    id: "3",
-    title: "Knowledge Graph Visualization Techniques",
-    preview: "Force-directed layouts work well for small to medium graphs. For larger datasets, consider hierarchical or radial layouts...",
-    tags: ["visualization", "d3", "graph"],
-    isClip: true,
-    updatedAt: "3h ago",
-  },
-  {
-    id: "4",
-    title: "Spaced Repetition Algorithm — Leitner System",
-    preview: "The Leitner system uses boxes numbered 1-5. Correctly answered cards move up a box, incorrect ones return to box 1...",
-    tags: ["learning", "algorithm", "flashcards"],
-    isClip: false,
-    updatedAt: "1d ago",
-  },
-];
+import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  Search,
+  Plus,
+  Trash2,
+  Sparkles,
+  Tag,
+  X,
+  PanelRightClose,
+  PanelRightOpen,
+  Check,
+  FileText,
+  RotateCcw,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useNotesStore, NoteStoreItem } from "@/stores/notes-store";
+import { TiptapEditor } from "@/components/editor/TiptapEditor";
+import { AIInspector } from "@/components/editor/AIInspector";
 
 export default function NotesPage() {
-  const [selectedNote, setSelectedNote] = useState<string | null>("1");
-  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    notes,
+    activeNoteId,
+    searchQuery,
+    selectedTag,
+    syncStatus,
+    setActiveNoteId,
+    setSearchQuery,
+    setSelectedTag,
+    createNote,
+    updateNote,
+    deleteNote,
+    resetToSeeds,
+  } = useNotesStore();
 
-  const filteredNotes = DEMO_NOTES.filter(
-    (n) =>
+  const [isAiPanelOpen, setIsAiPanelOpen] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Active note lookup
+  const activeNote = notes.find((n) => n.id === activeNoteId) || notes[0] || null;
+
+  // Filter notes based on search query and selected tag
+  const filteredNotes = notes.filter((n) => {
+    const matchesSearch =
+      searchQuery === "" ||
       n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      n.tags.some((t) => t.includes(searchQuery.toLowerCase()))
-  );
+      n.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      n.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const activeNote = DEMO_NOTES.find((n) => n.id === selectedNote);
+    const matchesTag =
+      selectedTag === null || n.tags.includes(selectedTag);
+
+    return matchesSearch && matchesTag;
+  });
+
+  // Trigger AI Analysis (Hybrid: On-Device Nano -> API Route Cloud/Heuristic)
+  const triggerAiAnalysis = useCallback(async (noteToAnalyze: NoteStoreItem) => {
+    if (!noteToAnalyze.content || noteToAnalyze.content.trim().length < 20) {
+      return;
+    }
+
+    setIsAnalyzing(true);
+    const startMs = performance.now();
+
+    try {
+      // 1. Check if Chrome Built-in AI (Gemini Nano) is available locally in the browser
+      const winAi = typeof window !== "undefined" ? (window as any).ai : null;
+
+      if (winAi?.languageModel) {
+        try {
+          const session = await winAi.languageModel.create();
+          const prompt = `Analyze this note and provide:
+1. A 1-2 sentence executive summary.
+2. 3-5 lowercase tags separated by commas.
+
+Content:
+${noteToAnalyze.content.slice(0, 1500)}`;
+
+          const response = await session.prompt(prompt);
+          session.destroy();
+
+          const latencyMs = Math.round(performance.now() - startMs);
+          const lines = response.split("\n").filter((l: string) => l.trim().length > 0);
+          const summary = lines[0] || "Summary generated locally on-device.";
+          const tagMatches = response.match(/#[a-z0-9_-]+|[a-z0-9_-]{3,}/gi) || [];
+          const newTags = Array.from(
+            new Set([...noteToAnalyze.tags, ...tagMatches.slice(0, 4).map((t: string) => t.toLowerCase())])
+          );
+
+          updateNote(noteToAnalyze.id, {
+            summary,
+            tags: newTags,
+            aiProcessed: true,
+            aiMode: "on-device",
+            aiLatencyMs: latencyMs,
+          });
+
+          toast.success("AI Insights updated (Gemini Nano on-device)");
+          setIsAnalyzing(false);
+          return;
+        } catch {
+          // On-device failed or user cancelled, fall through to cloud API route
+        }
+      }
+
+      // 2. Call server-side API route (/api/ai/analyze) with Gemini 3.8 Flash / Heuristic
+      const res = await fetch("/api/ai/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: noteToAnalyze.title,
+          content: noteToAnalyze.content,
+          existingTags: noteToAnalyze.tags,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to analyze note");
+
+      const data = await res.json();
+
+      updateNote(noteToAnalyze.id, {
+        summary: data.summary,
+        tags: data.tags,
+        aiProcessed: true,
+        aiMode: data.mode === "cloud" ? "cloud" : "simulated",
+        aiLatencyMs: data.latencyMs,
+      });
+
+      toast.success(
+        data.mode === "cloud"
+          ? "AI Insights generated (Gemini 3.8 Flash)"
+          : "AI Insights generated (Smart Heuristic Engine)"
+      );
+    } catch (err) {
+      console.error("AI Analysis error:", err);
+      toast.error("AI analysis could not be completed.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [updateNote]);
+
+  // Handle Editor Content Change with Debounced AI Analysis
+  const handleEditorChange = (newMarkdown: string, plainText: string) => {
+    if (!activeNote) return;
+
+    updateNote(activeNote.id, {
+      content: newMarkdown,
+      plainText,
+    });
+
+    // Reset previous debounced timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Debounce trigger after 3 seconds of typing idle
+    debounceTimerRef.current = setTimeout(() => {
+      const currentNote = useNotesStore
+        .getState()
+        .notes.find((n) => n.id === activeNote.id);
+      if (currentNote && currentNote.content.length > 30) {
+        triggerAiAnalysis(currentNote);
+      }
+    }, 3000);
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!activeNote) return;
+    updateNote(activeNote.id, { title: e.target.value });
+  };
+
+  const handleNewNote = () => {
+    const created = createNote({
+      title: "Untitled Note",
+      content: "",
+      plainText: "",
+      tags: [],
+    });
+    setActiveNoteId(created.id);
+    toast.success("Created new note");
+  };
+
+  const handleDeleteNote = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteNote(id);
+    toast.info("Note deleted");
+  };
+
+  // Word count & stats
+  const wordCount = activeNote?.plainText
+    ? activeNote.plainText.trim().split(/\s+/).filter(Boolean).length
+    : 0;
 
   return (
-    <div className="flex h-[calc(100vh-6.5rem)]">
-      {/* Sidebar — Note List */}
-      <aside className="w-80 border-r border-[var(--border)] flex flex-col">
-        {/* Search */}
-        <div className="p-4 border-b border-[var(--border)]">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-[var(--bg-primary)]">
+      {/* LEFT PANEL: Note Explorer & Vault List */}
+      <aside className="w-80 border-r border-[var(--border)] bg-[var(--bg-secondary)]/30 flex flex-col shrink-0">
+        {/* Header Search & Actions */}
+        <div className="p-4 border-b border-[var(--border)] space-y-3">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">🔍</span>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
             <input
               type="text"
-              placeholder="Search notes..."
+              placeholder="Search notes, tags, ideas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)]"
+              className="w-full pl-9 pr-4 py-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)]"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
-          <button className="mt-3 w-full py-2.5 rounded-lg bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white text-sm font-medium hover:opacity-90 transition-opacity">
-            + New Note
+
+          {/* Active Tag Filter Pill */}
+          {selectedTag && (
+            <div className="flex items-center justify-between px-2.5 py-1 rounded bg-[var(--accent-blue)]/15 border border-[var(--accent-blue)]/30 text-xs text-[var(--accent-blue)]">
+              <span className="flex items-center gap-1">
+                <Tag className="w-3 h-3" /> #{selectedTag}
+              </span>
+              <button
+                onClick={() => setSelectedTag(null)}
+                className="hover:text-white"
+                title="Clear filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={handleNewNote}
+            className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white text-xs font-medium hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5 shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> New Note
           </button>
         </div>
 
-        {/* Note list */}
-        <div className="flex-1 overflow-y-auto">
-          {filteredNotes.map((note) => (
-            <button
-              key={note.id}
-              onClick={() => setSelectedNote(note.id)}
-              className={`w-full text-left p-4 border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors ${
-                selectedNote === note.id ? "bg-[var(--bg-tertiary)] border-l-2 border-l-[var(--accent-blue)]" : ""
-              }`}
-            >
-              <div className="flex items-start justify-between mb-1">
-                <h3 className="text-sm font-medium text-[var(--text-primary)] line-clamp-1 flex-1">
-                  {note.isClip && <span className="mr-1.5">📎</span>}
-                  {note.title}
-                </h3>
-              </div>
-              <p className="text-xs text-[var(--text-muted)] line-clamp-2 mb-2">{note.preview}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex gap-1.5">
-                  {note.tags.slice(0, 2).map((tag) => (
-                    <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-muted)]">
-                      {tag}
-                    </span>
-                  ))}
+        {/* Note List */}
+        <div className="flex-1 overflow-y-auto divide-y divide-[var(--border)]/40">
+          {filteredNotes.length === 0 ? (
+            <div className="p-8 text-center space-y-3">
+              <FileText className="w-8 h-8 text-[var(--text-muted)] mx-auto opacity-40" />
+              <p className="text-xs text-[var(--text-muted)]">No notes match your filter.</p>
+              <button
+                onClick={resetToSeeds}
+                className="inline-flex items-center gap-1 text-xs text-[var(--accent-blue)] hover:underline"
+              >
+                <RotateCcw className="w-3 h-3" /> Load demo notes
+              </button>
+            </div>
+          ) : (
+            filteredNotes.map((note) => {
+              const isSelected = activeNote?.id === note.id;
+              return (
+                <div
+                  key={note.id}
+                  onClick={() => setActiveNoteId(note.id)}
+                  className={`p-3.5 cursor-pointer hover:bg-[var(--bg-tertiary)]/70 transition-colors group relative ${
+                    isSelected
+                      ? "bg-[var(--bg-tertiary)] border-l-2 border-l-[var(--accent-blue)]"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h3 className="text-xs font-semibold text-[var(--text-primary)] line-clamp-1 flex-1">
+                      {note.isClip && <span className="mr-1">📎</span>}
+                      {note.title || "Untitled Note"}
+                    </h3>
+                    <button
+                      onClick={(e) => handleDeleteNote(note.id, e)}
+                      className="opacity-0 group-hover:opacity-100 hover:text-rose-400 text-[var(--text-muted)] p-1 rounded transition-opacity"
+                      title="Delete Note"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  <p className="text-[11px] text-[var(--text-secondary)] line-clamp-2 mb-2 leading-relaxed">
+                    {note.summary || note.plainText || "Empty note content..."}
+                  </p>
+
+                  <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)]">
+                    <div className="flex items-center gap-1 overflow-hidden">
+                      {note.tags.slice(0, 2).map((t) => (
+                        <span
+                          key={t}
+                          className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-muted)] truncate max-w-[80px]"
+                        >
+                          #{t}
+                        </span>
+                      ))}
+                      {note.tags.length > 2 && (
+                        <span className="text-[9px]">+{note.tags.length - 2}</span>
+                      )}
+                    </div>
+
+                    {note.aiProcessed && (
+                      <span className="flex items-center gap-0.5 text-emerald-400/80">
+                        <Sparkles className="w-2.5 h-2.5" /> AI
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="text-[10px] text-[var(--text-muted)]">{note.updatedAt}</span>
-              </div>
-            </button>
-          ))}
+              );
+            })
+          )}
         </div>
       </aside>
 
-      {/* Main — Editor Area */}
-      <div className="flex-1 flex flex-col">
-        {activeNote ? (
-          <>
-            {/* Editor toolbar */}
-            <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--border)]">
-              <div>
-                <h1 className="text-lg font-semibold">{activeNote.title}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  {activeNote.tags.map((tag) => (
-                    <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1.5 rounded-lg text-xs glass hover:border-[var(--border-hover)]">
-                  🔗 Link Notes
-                </button>
-                <button className="px-3 py-1.5 rounded-lg text-xs glass hover:border-[var(--border-hover)]">
-                  🃏 Make Flashcards
-                </button>
-              </div>
-            </div>
+      {/* CENTER PANEL: Main Workspace & Tiptap Editor */}
+      {activeNote ? (
+        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[var(--bg-primary)]">
+          {/* Top Title Bar */}
+          <div className="px-6 py-3 border-b border-[var(--border)] flex items-center justify-between gap-4 bg-[var(--bg-secondary)]/30 shrink-0">
+            <input
+              type="text"
+              value={activeNote.title}
+              onChange={handleTitleChange}
+              placeholder="Note title..."
+              className="flex-1 text-base md:text-lg font-bold bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
+            />
 
-            {/* Editor + AI Sidebar */}
-            <div className="flex-1 flex">
-              {/* Editor */}
-              <div className="flex-1 p-6">
-                <div className="prose prose-invert max-w-none">
-                  <div className="min-h-[400px] p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-sm text-[var(--text-secondary)] leading-relaxed">
-                    <p className="text-[var(--text-muted)] italic">
-                      ✏️ Tiptap rich text editor will be integrated here.
-                    </p>
-                    <p className="mt-4">{activeNote.preview}</p>
-                    <p className="mt-4 text-[var(--text-muted)]">
-                      Select text to see AI actions: Summarize, Simplify, Expand, Translate...
-                    </p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-3 shrink-0">
+              {/* Sync Status Badge */}
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+                {syncStatus === "saving" ? (
+                  <span className="text-amber-400 text-[11px]">Saving...</span>
+                ) : (
+                  <span className="flex items-center gap-1 text-emerald-400 text-[11px]">
+                    <Check className="w-3 h-3" /> Synced Local
+                  </span>
+                )}
               </div>
 
-              {/* AI Sidebar */}
-              <aside className="w-72 border-l border-[var(--border)] p-4 flex flex-col gap-4">
-                <h2 className="text-sm font-semibold text-[var(--text-secondary)]">🤖 AI Assistant</h2>
+              <span className="text-xs text-[var(--text-muted)] font-mono">
+                {wordCount} words
+              </span>
 
-                <div className="space-y-2">
-                  {[
-                    { icon: "📝", label: "Summarize", badge: "On-Device", color: "emerald" },
-                    { icon: "💡", label: "Simplify", badge: "On-Device", color: "emerald" },
-                    { icon: "📖", label: "Expand", badge: "Cloud", color: "blue" },
-                    { icon: "🔗", label: "Find Related", badge: "On-Device", color: "emerald" },
-                    { icon: "🌐", label: "Translate", badge: "Cloud", color: "blue" },
-                    { icon: "🧪", label: "Synthesize", badge: "Cloud", color: "blue" },
-                  ].map((action) => (
-                    <button
-                      key={action.label}
-                      className="w-full flex items-center justify-between p-3 rounded-lg glass hover:border-[var(--border-hover)] transition-colors text-sm"
-                    >
-                      <span className="flex items-center gap-2">
-                        <span>{action.icon}</span>
-                        <span>{action.label}</span>
-                      </span>
-                      <span
-                        className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          action.color === "emerald"
-                            ? "bg-[var(--accent-emerald)]/10 text-[var(--accent-emerald)]"
-                            : "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
-                        }`}
-                      >
-                        {action.badge}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* AI Response Area */}
-                <div className="flex-1 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border)] p-3">
-                  <p className="text-xs text-[var(--text-muted)] text-center mt-8">
-                    Select text and choose an AI action to see results here.
-                  </p>
-                </div>
-              </aside>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <span className="text-6xl mb-4 block">📝</span>
-              <h2 className="text-xl font-semibold mb-2">Select a note</h2>
-              <p className="text-sm text-[var(--text-muted)]">Choose a note from the sidebar or create a new one.</p>
+              {/* Toggle AI Inspector */}
+              <button
+                onClick={() => setIsAiPanelOpen(!isAiPanelOpen)}
+                className={`p-1.5 rounded-lg border border-[var(--border)] text-xs flex items-center gap-1 transition-colors ${
+                  isAiPanelOpen
+                    ? "bg-[var(--accent-purple)]/15 border-[var(--accent-purple)]/40 text-[var(--accent-purple)]"
+                    : "hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)]"
+                }`}
+                title={isAiPanelOpen ? "Collapse AI Panel" : "Expand AI Panel"}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                {isAiPanelOpen ? (
+                  <PanelRightClose className="w-3.5 h-3.5" />
+                ) : (
+                  <PanelRightOpen className="w-3.5 h-3.5" />
+                )}
+              </button>
             </div>
           </div>
-        )}
-      </div>
+
+          {/* Tiptap Rich Text Editor */}
+          <TiptapEditor
+            content={activeNote.content}
+            onChange={handleEditorChange}
+            placeholder="Write your note in rich text or markdown. AI will summarize and extract tags automatically..."
+          />
+        </main>
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+          <FileText className="w-12 h-12 text-[var(--text-muted)] opacity-30" />
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">
+            No Note Selected
+          </h2>
+          <p className="text-xs text-[var(--text-muted)] max-w-sm">
+            Select an existing note from the explorer or create a new one to begin editing.
+          </p>
+          <button
+            onClick={handleNewNote}
+            className="px-4 py-2 rounded-lg bg-[var(--accent-blue)] text-white text-xs font-medium hover:opacity-90"
+          >
+            + Create First Note
+          </button>
+        </div>
+      )}
+
+      {/* RIGHT PANEL: AI Inspector & Telemetry */}
+      {activeNote && isAiPanelOpen && (
+        <AIInspector
+          note={activeNote}
+          onAnalyze={() => triggerAiAnalysis(activeNote)}
+          isAnalyzing={isAnalyzing}
+        />
+      )}
     </div>
   );
 }

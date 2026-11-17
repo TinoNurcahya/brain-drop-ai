@@ -53,7 +53,12 @@ All 4 workspace packages (`@braindrop/core`, `@braindrop/ai-logic`, `@braindrop/
   - Sticky glassmorphic navbar with logo, 4 navigation links, Nano capability checking badge, and Demo Mode toggle.
   - Persistent Telemetry HUD bar anchored at viewport bottom displaying On-Device, Cloud, and Simulated counts, alongside bytes preserved locally.
 - [x] **Landing Page (`page.tsx`):** High-contrast hero section with gradient headings, 6 interactive feature showcase cards, 3-tier hybrid architecture comparison grid, and competition footer.
-- [x] **Smart Note Workspace (`(dashboard)/notes/page.tsx`):** Split-view workspace featuring searchable note sidebar with tag filter pills, main editing canvas, and 6-button AI Assistant sidebar with color-coded execution badges.
+- [x] **Smart Note Workspace (`(dashboard)/notes/page.tsx`):**
+  - Production Tiptap WYSIWYG editor with Markdown storage (`tiptap-markdown`), Task Lists (checkboxes), Floating Bubble Menu, and Clean Header formatting toolbar.
+  - Global reactive state via Zustand store (`src/stores/notes-store.ts`) with LocalStorage `persist` middleware and Cloud-sync status flags.
+  - Real-Time Debounced AI Auto-Tagging & Instant Executive Summary (3s idle trigger) with zero-click workflow.
+  - Dedicated AI Inspector panel (`src/components/editor/AIInspector.tsx`) showing live inference telemetry (Nano on-device vs Cloud vs Heuristic), latency counter, interactive tag manager, and semantic graph connections.
+  - Server-side Next.js API Route (`api/ai/analyze/route.ts`) handling Gemini 3.8 Flash cloud requests with automatic fallback to local heuristic engine when offline or API key is unconfigured.
 - [x] **Knowledge Graph Canvas (`(dashboard)/graph/page.tsx`):** Visual node layout displaying note clusters with connection lines and AI relationship suggestion triggers.
 - [x] **Flashcard Study Suite (`(dashboard)/flashcards/page.tsx`):** 3D card flip animation, Leitner box difficulty badges, score trackers (Correct / Incorrect), and complete card gallery.
 - [x] **Research Dashboard (`(dashboard)/dashboard/page.tsx`):** 4-card metric overview, Privacy Telemetry ratio progress bars, Latency Benchmark comparison chart, Topic distribution bars, and 30-day activity heatmap.
