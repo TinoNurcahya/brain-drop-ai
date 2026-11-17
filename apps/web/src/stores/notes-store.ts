@@ -111,6 +111,17 @@ interface NotesState {
   setSyncStatus: (status: "synced" | "saving" | "offline") => void;
 
   createNote: (initial?: Partial<NoteStoreItem>) => NoteStoreItem;
+  addClipNote: (clip: {
+    title: string;
+    content: string;
+    sourceUrl?: string;
+    sourceTitle?: string;
+    tags?: string[];
+    summary?: string;
+    aiMode?: "on-device" | "cloud" | "simulated";
+    aiLatencyMs?: number;
+  }) => NoteStoreItem;
+  importClipsFromApi: () => Promise<number>;
   updateNote: (id: string, updates: Partial<NoteStoreItem>) => void;
   deleteNote: (id: string) => void;
   addTagToNote: (noteId: string, tag: string) => void;
@@ -165,6 +176,91 @@ export const useNotesStore = create<NotesState>()(
         }, 400);
 
         return newNote;
+      },
+
+      addClipNote: (clip) => {
+        const id = `clip-note-${Date.now()}`;
+        const newNote: NoteStoreItem = {
+          id,
+          title: clip.title || "Web Clip",
+          content: clip.content,
+          plainText: clip.content.replace(/#+\s/g, "").replace(/[`*_[\]]/g, "").trim(),
+          tags: clip.tags || ["web-clip"],
+          isClip: true,
+          sourceUrl: clip.sourceUrl,
+          sourceTitle: clip.sourceTitle || clip.title,
+          linkedNoteIds: [],
+          summary: clip.summary || "",
+          aiProcessed: Boolean(clip.summary || clip.tags?.length),
+          aiMode: clip.aiMode || "on-device",
+          aiLatencyMs: clip.aiLatencyMs || 35,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          userId: "local-user",
+        };
+
+        set((state) => ({
+          notes: [newNote, ...state.notes],
+          activeNoteId: id,
+          syncStatus: "saving",
+        }));
+
+        setTimeout(() => {
+          set({ syncStatus: "synced" });
+        }, 400);
+
+        return newNote;
+      },
+
+      importClipsFromApi: async () => {
+        try {
+          const res = await fetch("/api/clips");
+          if (!res.ok) return 0;
+          const data = await res.json();
+          const clips = data.clips || [];
+
+          let importedCount = 0;
+          set((state) => {
+            const existingIds = new Set(state.notes.map((n) => n.id));
+            const newNotes: NoteStoreItem[] = [];
+
+            for (const c of clips) {
+              const noteId = c.id || `clip-${Date.now()}`;
+              if (!existingIds.has(noteId)) {
+                newNotes.push({
+                  id: noteId,
+                  title: c.sourceTitle || "Web Clip",
+                  content: c.text,
+                  plainText: c.text,
+                  tags: c.tags || ["web-clip"],
+                  isClip: true,
+                  sourceUrl: c.sourceUrl,
+                  sourceTitle: c.sourceTitle,
+                  linkedNoteIds: [],
+                  summary: c.summary || "",
+                  aiProcessed: true,
+                  aiMode: "on-device",
+                  aiLatencyMs: 40,
+                  createdAt: c.createdAt || new Date().toISOString(),
+                  updatedAt: c.createdAt || new Date().toISOString(),
+                  userId: "local-user",
+                });
+                importedCount++;
+              }
+            }
+
+            if (newNotes.length === 0) return state;
+
+            return {
+              notes: [...newNotes, ...state.notes],
+              syncStatus: "synced",
+            };
+          });
+
+          return importedCount;
+        } catch {
+          return 0;
+        }
       },
 
       updateNote: (id, updates) => {

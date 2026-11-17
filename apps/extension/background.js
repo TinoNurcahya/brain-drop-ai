@@ -1,36 +1,53 @@
 // BrainDrop AI — Extension Background Service Worker
 
 // Enable side panel on extension icon click
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {});
+chrome.sidePanel?.setPanelBehavior?.({ openPanelOnActionClick: false })?.catch(() => {});
 
 // Context menu for clipping
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "braindrop-clip",
-    title: "Clip to BrainDrop AI",
+    title: "🧠 Clip to BrainDrop AI",
     contexts: ["selection"],
   });
 });
 
+// Helper to push clip to web app API
+async function syncToWebApp(clip) {
+  try {
+    const res = await fetch("http://localhost:3000/api/clips", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(clip),
+    });
+    return res.ok;
+  } catch {
+    // Web app might not be running locally; kept in chrome.storage.local safely
+    return false;
+  }
+}
+
 // Handle context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "braindrop-clip" && info.selectionText) {
     const clip = {
-      text: info.selectionText,
+      id: `clip-${Date.now()}`,
+      text: info.selectionText.trim(),
       sourceUrl: tab?.url || "",
-      sourceTitle: tab?.title || "Untitled",
+      sourceTitle: tab?.title || "Web Clip",
+      tags: ["web-clip"],
       timestamp: Date.now(),
     };
 
-    // Save to local storage
-    chrome.storage.local.get(["clips"], (result) => {
+    // Save to extension storage
+    chrome.storage.local.get(["clips"], async (result) => {
       const clips = result.clips || [];
       clips.unshift(clip);
       chrome.storage.local.set({ clips: clips.slice(0, 100) });
     });
 
-    // TODO: Send to BrainDrop web app via API
-    console.log("Clipped:", clip);
+    // Sync to local BrainDrop Next.js instance
+    await syncToWebApp(clip);
   }
 });
 
@@ -38,18 +55,21 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "CLIP_TEXT") {
     const clip = {
-      text: message.text,
-      sourceUrl: message.sourceUrl,
-      sourceTitle: message.sourceTitle,
-      selectedHtml: message.selectedHtml,
+      id: `clip-${Date.now()}`,
+      text: message.text.trim(),
+      sourceUrl: message.sourceUrl || "",
+      sourceTitle: message.sourceTitle || "Quick Note",
+      selectedHtml: message.selectedHtml || "",
+      tags: message.tags || ["web-clip"],
       timestamp: Date.now(),
     };
 
-    chrome.storage.local.get(["clips"], (result) => {
+    chrome.storage.local.get(["clips"], async (result) => {
       const clips = result.clips || [];
       clips.unshift(clip);
-      chrome.storage.local.set({ clips: clips.slice(0, 100) }, () => {
-        sendResponse({ success: true, clip });
+      chrome.storage.local.set({ clips: clips.slice(0, 100) }, async () => {
+        const synced = await syncToWebApp(clip);
+        sendResponse({ success: true, clip, synced });
       });
     });
 
@@ -64,7 +84,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "OPEN_SIDE_PANEL") {
-    chrome.sidePanel.open({ tabId: sender.tab?.id });
+    chrome.sidePanel?.open?.({ tabId: sender.tab?.id });
     sendResponse({ success: true });
+    return true;
   }
 });
