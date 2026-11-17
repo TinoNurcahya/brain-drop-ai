@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrainDrop AI — Clips</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0f; color: #f0f0ff;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+    }
+    .header {
+      padding: 16px; position: sticky; top: 0;
+      background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid #2a2a4a; z-index: 10;
+    }
+    .header h1 { font-size: 15px; margin-bottom: 8px; }
+    .search {
+      width: 100%; padding: 8px 12px; border-radius: 8px;
+      border: 1px solid #2a2a4a; background: #12121a;
+      color: #f0f0ff; font-size: 13px;
+    }
+    .search:focus { outline: none; border-color: #4f8ff7; }
+    .search::placeholder { color: #6a6a8a; }
+    .clips { padding: 8px; }
+    .clip {
+      padding: 12px; margin-bottom: 8px; border-radius: 10px;
+      background: #12121a; border: 1px solid #2a2a4a;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .clip:hover { border-color: #3a3a6a; }
+    .clip-source {
+      font-size: 11px; color: #4f8ff7; margin-bottom: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .clip-text {
+      font-size: 13px; color: #a0a0c0; line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .clip-meta {
+      margin-top: 8px; display: flex; justify-content: space-between;
+      font-size: 10px; color: #6a6a8a;
+    }
+    .empty {
+      text-align: center; padding: 40px 20px; color: #6a6a8a;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧠 Recent Clips</h1>
+    <input type="text" class="search" placeholder="Search clips..." id="search" />
+  </div>
+  <div class="clips" id="clips-container">
+    <div class="empty">
+      <div class="empty-icon">📎</div>
+      <p>No clips yet.</p>
+      <p style="margin-top: 4px;">Select text on any page and click "Clip to BrainDrop".</p>
+    </div>
+  </div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

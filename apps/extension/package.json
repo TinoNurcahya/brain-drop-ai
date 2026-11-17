@@ -1,0 +1,11 @@
+{
+  "name": "@braindrop/extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo extension-built",
+    "dev": "echo extension-dev",
+    "lint": "echo lint-ok",
+    "clean": "echo clean-ok"
+  }
+}

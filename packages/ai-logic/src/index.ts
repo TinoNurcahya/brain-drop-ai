@@ -1,0 +1,11 @@
+export * from "@braindrop/core";
+export { detectOnDeviceAI, isNanoReady, type DeviceCapability, type NanoStatus } from "./detector";
+export { simulateNano } from "./simulation";
+export { PROMPTS, fillPrompt } from "./prompts";
+export { executeTask, getTelemetryLog, getTelemetryStats, clearTelemetry } from "./router";
+export { autoTag } from "./tasks/tagger";
+export { summarize, simplify, expand } from "./tasks/summarizer";
+export { synthesize } from "./tasks/synthesizer";
+export { generateFlashcards } from "./tasks/flashcard";
+export { findRelatedNotes } from "./tasks/linker";
+export { semanticSearch } from "./tasks/search";
