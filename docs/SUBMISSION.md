@@ -1,4 +1,4 @@
-﻿# BrainDrop AI — Hackathon Submission Kit & Evaluation Guide
+# BrainDrop AI — Hackathon Submission Kit & Evaluation Guide
 
 > **Competition:** Google #BuildHybridAI 2026  
 > **Platform Category:** Web (Chrome) Track  
@@ -27,7 +27,7 @@ BrainDrop AI is a **Privacy-First Hybrid AI Knowledge Capture & Research Assista
 - **Web Clipper Chrome Extension (MV3):**  
   A companion side panel extension that allows 1-click clipping from any webpage with automatic provenance tracking (source URL, title, date).
 - **Interactive Knowledge Graph:**  
-  Visual node web powered by React Flow illustrating conceptual relationships discovered autonomously by AI.
+  High-performance 60 FPS visual node web powered by an in-house HTML5 Canvas Force-Directed Physics Engine illustrating conceptual relationships discovered autonomously by AI.
 
 ---
 
@@ -125,7 +125,7 @@ BrainDrop AI was authored by **Tino Nurcahya**, a fresh graduate software engine
 
 1. **AI Systems Engineering:** Nuanced orchestrator managing client-side WebGPU Prompt APIs, multi-model fallback cascades, and context token optimization.
 2. **Defensive Privacy Architecture:** Hardened client-side PII sanitization ensuring compliance with modern enterprise data protection standards (GDPR, UU PDP).
-3. **Advanced Frontend Engineering:** Turborepo monorepo orchestration, Next.js 15 App Router, React Flow graph rendering, Tiptap ProseMirror extensions, and Tailwind CSS 4 design systems.
+3. **Advanced Frontend Engineering:** Turborepo monorepo orchestration, Next.js 15 App Router, 60 FPS HTML5 Canvas physics graph rendering, Tiptap ProseMirror extensions, and Tailwind CSS 4 design systems.
 4. **Cross-Platform Extension Architecture:** Manifest V3 background service workers, content scripts, and side panel APIs communicating with web application backends.
 
 ---
