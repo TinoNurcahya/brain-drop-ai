@@ -1,203 +1,478 @@
-export default function LandingPage() {
+"use client";
+
+import { useEffect, useRef } from "react";
+import Link from "next/link";
+import { useReducedMotion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  BookOpen,
+  Brain,
+  Cloud,
+  Cpu,
+  FileText,
+  Network,
+  Plus,
+  Sparkles,
+} from "lucide-react";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
+import { useTextReveal } from "@/hooks/useTextReveal";
+import { useMagnetic } from "@/hooks/useMagnetic";
+import { PinnedExperience } from "@/components/landing/PinnedExperience";
+import { HybridDiagram } from "@/components/landing/HybridDiagram";
+import "./landing.css";
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- Hero Preview Card ---------- */
+function ConceptMap({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="relative">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--accent-blue)]/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--accent-purple)]/5 rounded-full blur-3xl" />
+    <svg
+      className={`concept-map ${compact ? "compact-map" : ""}`}
+      viewBox="0 0 500 280"
+      role="img"
+      aria-label="Learning connects to active recall, spaced practice, and lasting knowledge"
+    >
+      <g className="map-lines" fill="none" strokeWidth="1.5">
+        <path d="M250 135 C180 135 190 57 100 57" />
+        <path d="M250 135 C330 135 300 57 408 57" />
+        <path d="M250 135 C160 135 190 232 100 232" />
+        <path d="M250 135 C335 135 300 232 400 232" />
+        <path d="M100 57 C30 90 35 195 100 232" strokeDasharray="4 6" />
+      </g>
+      <g className="map-node">
+        <rect x="174" y="104" width="152" height="62" rx="31" />
+        <text x="250" y="141" textAnchor="middle">
+          Learning
+        </text>
+      </g>
+      <g className="map-leaf">
+        <rect x="30" y="35" width="145" height="44" rx="8" />
+        <text x="102" y="62" textAnchor="middle">
+          Active recall
+        </text>
+        <rect x="330" y="35" width="150" height="44" rx="8" />
+        <text x="405" y="62" textAnchor="middle">
+          Spaced practice
+        </text>
+        <rect x="25" y="210" width="160" height="44" rx="8" />
+        <text x="105" y="237" textAnchor="middle">
+          Retrieval practice
+        </text>
+        <rect x="320" y="210" width="160" height="44" rx="8" />
+        <text x="400" y="237" textAnchor="middle">
+          Lasting knowledge
+        </text>
+      </g>
+      <circle cx="174" cy="135" r="4" className="map-dot" />
+      <circle cx="326" cy="135" r="4" className="map-dot" />
+    </svg>
+  );
+}
+
+function HeroPreview() {
+  return (
+    <div className="hero-preview" aria-label="Illustrative knowledge workspace">
+      <div className="preview-topline">
+        <span>
+          <Brain size={16} /> YOUR SECOND BRAIN
+        </span>
+        <span>Sample collection</span>
+      </div>
+      <div className="preview-note">
+        <div className="preview-note-label">
+          <FileText size={15} />
+          <span>A small discovery</span>
+          <span className="note-corner">Saved thought</span>
         </div>
-
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <div className="text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-sm mb-8">
-              <span className="w-2 h-2 rounded-full bg-[var(--accent-emerald)] pulse-dot" />
-              <span className="text-[var(--text-secondary)]">Built for</span>
-              <span className="font-semibold gradient-text">#BuildHybridAI 2026</span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              <span className="block text-[var(--text-primary)]">Capture anything.</span>
-              <span className="block gradient-text">Forget nothing.</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-[var(--text-secondary)] mb-10 leading-relaxed">
-              Your second brain that clips, tags, links, and visualizes your research —{" "}
-              <span className="text-[var(--accent-emerald)] font-medium">
-                all on-device, all private
-              </span>
-              . Cloud AI steps in only when you need deep synthesis.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="/capture"
-                className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white font-semibold text-base hover:opacity-90 transition-opacity shadow-lg shadow-[var(--accent-blue)]/25"
-              >
-                Start Capturing →
-              </a>
-              <a
-                href="/dashboard"
-                className="px-8 py-3.5 rounded-xl glass text-[var(--text-primary)] font-medium text-base hover:border-[var(--border-hover)] transition-colors"
-              >
-                View Demo Dashboard
-              </a>
-            </div>
-          </div>
+        <h3>
+          Learning is a practice,
+          <br />
+          not a destination.
+        </h3>
+        <p>
+          Don&apos;t just collect what you read.
+          <br />
+          Connect it. Question it. Make it yours.
+        </p>
+        <div className="topic-tags">
+          <span>learning</span>
+          <span>curiosity</span>
         </div>
-      </section>
+      </div>
+      <div className="preview-connection">
+        <span className="connector-stem" />
+        <span>One idea opens another</span>
+      </div>
+      <ConceptMap compact />
+      <div className="preview-bottomline">
+        <span>
+          <Network size={14} /> A place for connected thinking
+        </span>
+        <Plus size={16} />
+      </div>
+    </div>
+  );
+}
 
-      {/* Feature Cards */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold mb-3">How It Works</h2>
-          <p className="text-[var(--text-secondary)] max-w-xl mx-auto">
-            Privacy-first AI that processes your knowledge on-device — cloud only when needed.
+/* ---------- Hero Section ---------- */
+function HeroSection() {
+  const reduced = useReducedMotion();
+  const headingRef = useTextReveal({
+    trigger: "load",
+    stagger: 0.055,
+    y: 50,
+    delay: 0.35,
+    duration: 0.85,
+  });
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const footnoteRef = useRef<HTMLParagraphElement>(null);
+  const visualRef = useRef<HTMLDivElement>(null);
+  const eyebrowRef = useRef<HTMLParagraphElement>(null);
+  const eyebrowRuleRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (reduced) return;
+
+    const ctx = gsap.context(() => {
+      // Eyebrow fade in
+      gsap.fromTo(
+        eyebrowRef.current,
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.5, delay: 0.1, ease: "power2.out" }
+      );
+
+      // Eyebrow rule width
+      gsap.fromTo(
+        eyebrowRuleRef.current,
+        { width: 0 },
+        { width: 28, duration: 0.6, delay: 0.15, ease: "power2.out" }
+      );
+
+      // Description
+      gsap.fromTo(
+        descRef.current,
+        { y: 22, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, delay: 1.0, ease: "power3.out" }
+      );
+
+      // CTA buttons
+      if (actionsRef.current) {
+        gsap.fromTo(
+          actionsRef.current.children,
+          { y: 20, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            delay: 1.15,
+            ease: "power3.out",
+          }
+        );
+      }
+
+      // Footnote
+      gsap.fromTo(
+        footnoteRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5, delay: 1.4 }
+      );
+
+      // Hero visual parallax on scroll
+      if (visualRef.current) {
+        gsap.to(visualRef.current, {
+          y: -50,
+          ease: "none",
+          scrollTrigger: {
+            trigger: visualRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.2,
+          },
+        });
+      }
+    });
+
+    return () => ctx.revert();
+  }, [reduced]);
+
+  return (
+    <section
+      className="landing-hero landing-container"
+      aria-labelledby="hero-heading"
+    >
+      <div className="hero-copy">
+        <p className="eyebrow" ref={eyebrowRef} style={{ opacity: 0 }}>
+          <span className="eyebrow-rule" ref={eyebrowRuleRef} /> A LITTLE SPACE
+          FOR A BIGGER MIND
+        </p>
+        <h1 id="hero-heading" ref={headingRef}>
+          Capture
+          <br />
+          anything.
+          <br />
+          <span className="hero-accent">Forget nothing.</span>
+        </h1>
+        <p
+          className="hero-description"
+          ref={descRef}
+          style={{ opacity: 0 }}
+        >
+          Give your thoughts somewhere to grow. Capture what matters, connect
+          your ideas, and turn curiosity into knowledge.
+        </p>
+        <div
+          className="hero-actions"
+          ref={actionsRef}
+        >
+          <Link className="landing-button primary" href="/capture">
+            Start capturing <Plus size={18} />
+          </Link>
+          <a href="#experience" className="landing-button secondary">
+            Explore the experience
+          </a>
+        </div>
+        <p
+          className="hero-footnote"
+          ref={footnoteRef}
+          style={{ opacity: 0 }}
+        >
+          <Cpu size={15} /> On-device when available. Cloud when needed.
+        </p>
+      </div>
+
+      <div className="hero-visual" ref={visualRef}>
+        <div className="hero-orbit" aria-hidden="true" />
+        <HeroPreview />
+        <div className="visual-caption">
+          <span>THINK FREELY. KEEP THE CONNECTIONS.</span>
+          <span>BrainDrop AI</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Principles Strip ---------- */
+function PrinciplesStrip() {
+  const stripRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const ctx = gsap.context(() => {
+      const items = el.querySelectorAll(".principle-item");
+      gsap.fromTo(
+        items,
+        { y: 12, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 90%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
+    }, el);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div className="landing-container">
+      <div className="principles-strip" ref={stripRef}>
+        <span>Built around your curiosity</span>
+        <div>
+          <span className="principle-item">
+            <FileText size={16} /> Capture the spark
+          </span>
+          <span className="principle-item">
+            <Network size={16} /> Connect the dots
+          </span>
+          <span className="principle-item">
+            <BookOpen size={16} /> Keep the knowledge
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Hybrid Section (How it Works) ---------- */
+function HybridSection() {
+  const headingRef = useTextReveal<HTMLHeadingElement>({
+    trigger: "scroll",
+    stagger: 0.04,
+    y: 35,
+  });
+
+  return (
+    <section id="how-it-works" className="hybrid-section">
+      <div className="landing-container">
+        <div className="hybrid-heading">
+          <p className="eyebrow">THOUGHTFUL BY DESIGN</p>
+          <h2 ref={headingRef}>
+            Your thinking space.
+            <br />
+            <span>With the right kind of help.</span>
+          </h2>
+          <p>
+            Two ways to work with your ideas, brought together in one quiet
+            workspace.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            {
-              icon: "✂️",
-              title: "Clip from Anywhere",
-              description: "Highlight text on any webpage → one-click save to BrainDrop. Chrome Extension captures context, URL, and metadata automatically.",
-              badge: "Extension",
-              color: "blue",
-            },
-            {
-              icon: "🏷️",
-              title: "AI Auto-Tagging",
-              description: "Gemini Nano 4 tags and categorizes your clips instantly on-device. Your content never leaves your browser.",
-              badge: "On-Device",
-              color: "emerald",
-            },
-            {
-              icon: "🔗",
-              title: "Smart Linking",
-              description: "AI discovers connections between your notes. Watch your knowledge graph grow as relationships emerge.",
-              badge: "On-Device",
-              color: "emerald",
-            },
-            {
-              icon: "🧪",
-              title: "Deep Synthesis",
-              description: "Select multiple notes → Gemini 3.8 Flash weaves them into a comprehensive research brief with citations.",
-              badge: "Cloud",
-              color: "blue",
-            },
-            {
-              icon: "🃏",
-              title: "Flashcard Generation",
-              description: "Turn any note into study flashcards. AI extracts key concepts and creates Q&A pairs for spaced repetition.",
-              badge: "Cloud",
-              color: "blue",
-            },
-            {
-              icon: "🔒",
-              title: "Privacy Telemetry",
-              description: "Real-time dashboard shows exactly what runs on-device vs cloud. PII is auto-redacted before any cloud request.",
-              badge: "Hybrid",
-              color: "purple",
-            },
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className={`glass rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 glow-${feature.color}`}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <span className="text-3xl">{feature.icon}</span>
-                <span
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                    feature.color === "emerald"
-                      ? "bg-[var(--accent-emerald)]/10 text-[var(--accent-emerald)]"
-                      : feature.color === "blue"
-                      ? "bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]"
-                      : "bg-[var(--accent-purple)]/10 text-[var(--accent-purple)]"
-                  }`}
-                >
-                  {feature.badge}
-                </span>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
+        {/* Animated diagram */}
+        <HybridDiagram />
+
+        <div className="hybrid-columns">
+          <article>
+            <span className="hybrid-icon">
+              <Cpu size={25} />
+            </span>
+            <p className="eyebrow">CLOSE TO YOUR THOUGHTS</p>
+            <h3>Small tasks. On your device.</h3>
+            <p>
+              On supported browsers, built-in AI helps organize and summarize
+              notes locally. Availability depends on your browser, device, and
+              model setup.
+            </p>
+            <span className="hybrid-detail">Capture · Organize · Summarize</span>
+          </article>
+          <article>
+            <span className="hybrid-icon">
+              <Cloud size={25} />
+            </span>
+            <p className="eyebrow">ROOM FOR THE BIGGER PICTURE</p>
+            <h3>Deeper work. With cloud AI.</h3>
+            <p>
+              Bring multiple notes into a synthesis or generate study cards with
+              cloud assistance. These workflows send relevant content for
+              processing.
+            </p>
+            <span className="hybrid-detail">
+              Synthesize · Question · Review
+            </span>
+          </article>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Final CTA Section ---------- */
+function FinalCTA() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useTextReveal<HTMLHeadingElement>({
+    trigger: "scroll",
+    stagger: 0.045,
+    y: 30,
+  });
+  const buttonRef = useMagnetic<HTMLAnchorElement>(0.25);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || reduced) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        section,
+        { clipPath: "circle(8% at 50% 50%)" },
+        {
+          clipPath: "circle(100% at 50% 50%)",
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 85%",
+            end: "top 35%",
+            scrub: 1,
+          },
+        }
+      );
+    }, section);
+
+    return () => ctx.revert();
+  }, [reduced]);
+
+  return (
+    <section ref={sectionRef} className="final-section landing-container">
+      <Sparkles size={27} className="final-spark" />
+      <p className="eyebrow">FOLLOW YOUR NEXT THOUGHT</p>
+      <h2 ref={headingRef}>
+        Great ideas start
+        <br />
+        with a little <span>space.</span>
+      </h2>
+      <Link
+        ref={buttonRef}
+        href="/capture"
+        className="landing-button primary magnetic"
+      >
+        Capture your first thought <Plus size={18} />
+      </Link>
+    </section>
+  );
+}
+
+/* ---------- Landing Page ---------- */
+export default function LandingPage() {
+  useSmoothScroll();
+
+  return (
+    <div className="landing">
+      <HeroSection />
+      <PrinciplesStrip />
+
+      <section
+        id="experience"
+        className="experience-section"
+        aria-label="Explore Capture, Connect, and Recall"
+      >
+        <PinnedExperience />
       </section>
 
-      {/* Architecture Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
-        <div className="glass rounded-2xl p-8 sm:p-12">
-          <h2 className="text-2xl font-bold mb-8 text-center">Hybrid AI Architecture</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* On-Device */}
-            <div className="rounded-xl bg-[var(--accent-emerald)]/5 border border-[var(--accent-emerald)]/20 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="w-3 h-3 rounded-full bg-[var(--accent-emerald)]" />
-                <h3 className="font-semibold text-[var(--accent-emerald)]">On-Device</h3>
-              </div>
-              <p className="text-xs text-[var(--text-muted)] mb-3">Gemini Nano 4 • ~50ms • FREE</p>
-              <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
-                <li>✓ Auto-tag clips</li>
-                <li>✓ Quick summarize</li>
-                <li>✓ Semantic search</li>
-                <li>✓ Smart linking</li>
-                <li>✓ PII detection</li>
-              </ul>
-            </div>
+      <HybridSection />
+      <FinalCTA />
 
-            {/* Router */}
-            <div className="rounded-xl bg-[var(--accent-purple)]/5 border border-[var(--accent-purple)]/20 p-6 flex flex-col items-center justify-center text-center">
-              <div className="text-4xl mb-3">⚡</div>
-              <h3 className="font-semibold text-[var(--accent-purple)] mb-2">Hybrid Router</h3>
-              <p className="text-sm text-[var(--text-secondary)]">
-                Firebase AI Logic routes each task to the best model. Privacy-sensitive tasks always stay on-device.
-              </p>
-              <div className="mt-4 text-xs text-[var(--text-muted)]">
-                PII auto-redacted before cloud
-              </div>
-            </div>
-
-            {/* Cloud */}
-            <div className="rounded-xl bg-[var(--accent-blue)]/5 border border-[var(--accent-blue)]/20 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="w-3 h-3 rounded-full bg-[var(--accent-blue)]" />
-                <h3 className="font-semibold text-[var(--accent-blue)]">Cloud Fallback</h3>
-              </div>
-              <p className="text-xs text-[var(--text-muted)] mb-3">Gemini 3.8 Flash • ~650ms • Free tier</p>
-              <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
-                <li>✓ Deep synthesis</li>
-                <li>✓ Multi-doc analysis</li>
-                <li>✓ Flashcard generation</li>
-                <li>✓ Translation</li>
-                <li>✓ Expand & elaborate</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="max-w-6xl mx-auto px-4 sm:px-6 py-10 text-center text-xs text-[var(--text-muted)]">
+      <footer className="landing-footer landing-container">
+        <Link href="/" className="brand">
+          <Brain size={21} />
+          <span>
+            braindrop
+            <span className="brand-ai"> / ai</span>
+          </span>
+        </Link>
         <p>
-          Built with ❤️ by{" "}
-          <a href="https://tinonurcahya.dev" className="text-[var(--accent-blue)] hover:underline">
+          Built by{" "}
+          <a
+            href="https://tinonurcahya.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Tino Nurcahya
-          </a>{" "}
-          for{" "}
-          <a href="https://firebasehybridaihackathon.devpost.com/" className="text-[var(--accent-purple)] hover:underline">
-            #BuildHybridAI 2026
           </a>
+          <span>Google #BuildHybridAI 2026</span>
         </p>
-        <p className="mt-1">Firebase AI Logic • Gemini Nano 4 • Gemini 3.8 Flash</p>
+        <div>
+          <Link href="/notes">Workspace</Link>
+          <a
+            href="https://github.com/TinoNurcahya/brain-drop-ai"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
       </footer>
     </div>
   );
