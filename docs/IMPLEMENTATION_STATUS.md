@@ -64,8 +64,18 @@ All 4 workspace packages (`@braindrop/core`, `@braindrop/ai-logic`, `@braindrop/
   - Real-Time Debounced AI Auto-Tagging & Instant Executive Summary (3s idle trigger) with zero-click workflow.
   - Dedicated AI Inspector panel (`src/components/editor/AIInspector.tsx`) showing live inference telemetry (Nano on-device vs Cloud vs Heuristic), latency counter, interactive tag manager, and semantic graph connections.
   - Server-side Next.js API Route (`api/ai/analyze/route.ts`) handling Gemini 3.8 Flash cloud requests with automatic fallback to local heuristic engine when offline or API key is unconfigured.
-- [x] **Knowledge Graph Canvas (`(dashboard)/graph/page.tsx`):** Visual node layout displaying note clusters with connection lines and AI relationship suggestion triggers.
-- [x] **Flashcard Study Suite (`(dashboard)/flashcards/page.tsx`):** 3D card flip animation, Leitner box difficulty badges, score trackers (Correct / Incorrect), and complete card gallery.
+- [x] **Knowledge Graph Canvas (`(dashboard)/graph/page.tsx`):**
+  - High-performance 60 FPS HTML5 Canvas engine with Coulomb repulsion, Hooke spring attraction, and velocity damping.
+  - Live data synchronization with `useNotesStore` (Zustand) reflecting all vault notes and web clips.
+  - Interactive smooth mouse wheel zoom (35%–300%), free background panning, and direct drag-and-drop node positioning.
+  - 1-Hop dynamic neighborhood highlighting on hover (dims irrelevant nodes and edges).
+  - AI Semantic Cross-Link discovery toggle (`✨ AI Links`) highlighting conceptual bridges between topics with glowing dashed lines.
+  - Interactive Node Inspector slide-over card displaying executive summaries, cluster tags, linked neighbor notes, and a direct "Open in Notes Editor" shortcut.
+- [x] **Spaced Repetition Flashcard Suite (`(dashboard)/flashcards/page.tsx`):**
+  - Full 3-Tier Leitner Box spaced repetition system (Box 1: Daily, Box 2: 3-Day, Box 3: Mastered) with calculated Memory Mastery Rate %.
+  - Interactive 3D flip card with CSS perspective (`preserve-3d`, `rotateY(180deg)`), difficulty pills, and Spacebar/1-2-3 keyboard shortcuts.
+  - AI Flashcard Generator (`api/ai/flashcards/route.ts`) powered by Gemini 3.8 Flash with local NLP heuristic fallback extracting 3–5 high-yield Q&A pairs from any vault note.
+  - Dedicated Zustand Store (`useFlashcardStore`) with LocalStorage `persist` middleware, manual card creation modal, and complete searchable deck gallery.
 - [x] **Research Dashboard (`(dashboard)/dashboard/page.tsx`):** 4-card metric overview, Privacy Telemetry ratio progress bars, Latency Benchmark comparison chart, Topic distribution bars, and 30-day activity heatmap.
 - [x] **API Route (`api/clips/route.ts`):** POST endpoint receiving clipped excerpts from the Chrome Extension with UUID assignment.
 - [x] **Build Verification:** `next build` compiled all routes in 8.3s generating 9 static and dynamic routes.
@@ -103,14 +113,19 @@ Route (app)                                 Size  First Load JS
 
 ---
 
-## 4. Pending Sprint Deliverables (Next Steps)
+## 4. Current Implementation Milestones (Completed)
 
-1. **Firebase Cloud Credentials:** Create official Google Cloud / Firebase project for BrainDrop AI and configure production `.env.local` keys.
-2. **App Check Configuration:** Register reCAPTCHA Enterprise key and configure debug token in Firebase Console for evaluator bypass.
-3. **Tiptap Integration:** Replace temporary textarea with full Tiptap rich prose editor supporting heading, list, and codeblock extensions.
-4. **React Flow Integration:** Upgrade SVG preview in `/graph` to interactive React Flow canvas with physics clustering.
-5. **Vercel Production Deploy:** Push repository to GitHub and link Vercel deployment with DNS pointing to `brain.tinonurcahya.dev`.
-6. **English YouTube Demo Video:** Record 3-minute video using `DEMO_VIDEO_SCRIPT.md`.
+1. **Client-Side PII Sanitization:** Integrated `@braindrop/core/sanitizer` across all cloud API routes (`/api/ai/analyze`, `/api/ai/synthesize`, `/api/ai/flashcards`), scrubbing credentials and sensitive data prior to cloud transmission.
+2. **On-Device Prompt Actions:** Integrated **"Find Related Notes"** (semantic topic affinity linker) and **"Simplify (ELI5)"** into `AIInspector.tsx`, alongside global keyboard shortcuts (`Cmd+K`, `Cmd+N`).
+3. **Live Telemetry HUD:** Anchored persistent floating bar dynamically reporting live on-device executions, cloud operations, and bytes kept local.
+4. **Persona Arya Benchmark Dataset:** Enriched default vault with 8 interconnected research notes and 8 flashcards spanning all 3 Leitner boxes.
+5. **Chrome Extension MV3 Ready:** Built `dist/` and `braindrop-extension.zip` with verified icons and background service worker.
+6. **Documentation & Demo Script:** Authored `docs/DEMO_VIDEO_SCRIPT.md` (3-minute English walkthrough) and synchronized specifications with the 60 FPS HTML5 Canvas engine.
+
+## 5. Next Deployment Steps
+1. **Live Vercel Production Deploy:** Link repository to Vercel production hosting at `brain.tinonurcahya.dev`.
+2. **YouTube Video Recording:** Record 3-minute video using the prepared `DEMO_VIDEO_SCRIPT.md`.
+3. **Devpost Submission Submission:** Paste architectural summaries and YouTube link into Devpost form.
 
 ---
 

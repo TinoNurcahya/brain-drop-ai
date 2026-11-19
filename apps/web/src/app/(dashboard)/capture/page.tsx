@@ -347,8 +347,8 @@ ${scrapedData.excerpt}
               onClick={() => setActiveTab("quick")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
                 activeTab === "quick"
-                  ? "bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white shadow-md"
-                  : "text-[var(--text-secondary)] hover:text-white"
+                  ? "bg-[image:var(--gradient-primary)] text-white shadow-md"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
@@ -359,8 +359,8 @@ ${scrapedData.excerpt}
               onClick={() => setActiveTab("url")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
                 activeTab === "url"
-                  ? "bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white shadow-md"
-                  : "text-[var(--text-secondary)] hover:text-white"
+                  ? "bg-[image:var(--gradient-primary)] text-white shadow-md"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Globe className="w-3.5 h-3.5" />
@@ -371,8 +371,8 @@ ${scrapedData.excerpt}
               onClick={() => setActiveTab("voice")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
                 activeTab === "voice"
-                  ? "bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white shadow-md"
-                  : "text-[var(--text-secondary)] hover:text-white"
+                  ? "bg-[image:var(--gradient-primary)] text-white shadow-md"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Mic className="w-3.5 h-3.5" />
@@ -387,7 +387,7 @@ ${scrapedData.excerpt}
                 <span className="text-xs font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
                   <FileText className="w-4 h-4 text-[var(--accent-blue)]" /> Instant Thought Dump
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                <span className="inline-flex items-center gap-1 text-[11px] text-[var(--accent-emerald)] bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                   <Cpu className="w-3 h-3" /> Auto-Sanitized On-Device
                 </span>
               </div>
@@ -425,7 +425,7 @@ ${scrapedData.excerpt}
                   <button
                     type="submit"
                     disabled={isProcessing || !quickContent.trim()}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white text-xs font-semibold hover:opacity-95 transition-opacity disabled:opacity-40 shadow-md"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[image:var(--gradient-primary)] text-white text-xs font-semibold hover:opacity-95 transition-opacity disabled:opacity-40 shadow-md"
                   >
                     {isProcessing ? (
                       <>
@@ -468,7 +468,7 @@ ${scrapedData.excerpt}
                 <button
                   type="submit"
                   disabled={isProcessing || !urlInput.trim()}
-                  className="px-4 py-2.5 rounded-lg bg-[var(--accent-blue)] text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 shrink-0"
+                  className="px-4 py-2.5 rounded-lg bg-[var(--action-blue)] text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 shrink-0"
                 >
                   {isProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Fetch & Extract"}
                 </button>
@@ -507,7 +507,7 @@ ${scrapedData.excerpt}
                     <button
                       onClick={handleSaveScrapedNote}
                       disabled={isProcessing}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition-colors"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-colors"
                     >
                       <Check className="w-3.5 h-3.5" />
                       <span>Save as BrainDrop Note</span>
@@ -537,7 +537,7 @@ ${scrapedData.excerpt}
                   onClick={toggleRecording}
                   className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${
                     isRecording
-                      ? "bg-rose-500 text-white animate-pulse shadow-lg shadow-rose-500/50 scale-105"
+                      ? "bg-rose-700 text-white animate-pulse shadow-lg shadow-rose-500/50 scale-105"
                       : "bg-[var(--bg-tertiary)] hover:bg-[var(--border)] text-[var(--accent-blue)] border border-[var(--border)]"
                   }`}
                 >
@@ -555,7 +555,7 @@ ${scrapedData.excerpt}
                     Live Transcript
                   </span>
                   {voiceTranscript && (
-                    <span className="text-[10px] text-emerald-400 flex items-center gap-1">
+                    <span className="text-[10px] text-[var(--accent-emerald)] flex items-center gap-1">
                       <Check className="w-3 h-3" /> Transcribed
                     </span>
                   )}
@@ -574,7 +574,7 @@ ${scrapedData.excerpt}
                   <button
                     onClick={handleSaveVoiceMemo}
                     disabled={isProcessing}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white text-xs font-semibold hover:opacity-95 transition-opacity"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[image:var(--gradient-primary)] text-white text-xs font-semibold hover:opacity-95 transition-opacity"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Save Transcribed Note</span>
@@ -594,7 +594,7 @@ ${scrapedData.excerpt}
               <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
                 🧩 Chrome MV3 Extension
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/10 text-[var(--accent-blue)] border border-blue-500/20">
                 Ready in Repo
               </span>
             </div>
@@ -607,8 +607,8 @@ ${scrapedData.excerpt}
               <div className="font-semibold text-[var(--text-primary)] text-[11px]">How to load in Chrome:</div>
               <ol className="list-decimal list-inside text-[11px] text-[var(--text-muted)] space-y-1">
                 <li>Open <code className="text-[var(--accent-blue)]">chrome://extensions</code> in Chrome.</li>
-                <li>Turn on <span className="text-white">Developer mode</span> (top right).</li>
-                <li>Click <span className="text-white">Load unpacked</span> and choose <code className="text-[var(--accent-blue)]">apps/extension</code>.</li>
+                <li>Turn on <span className="text-[var(--text-primary)]">Developer mode</span> (top right).</li>
+                <li>Click <span className="text-[var(--text-primary)]">Load unpacked</span> and choose <code className="text-[var(--accent-blue)]">apps/extension</code>.</li>
               </ol>
             </div>
           </div>
@@ -667,7 +667,7 @@ ${scrapedData.excerpt}
                           </span>
                         ))}
                       </div>
-                      <span className="text-[var(--text-muted)] group-hover:text-white transition-colors flex items-center gap-0.5">
+                      <span className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors flex items-center gap-0.5">
                         Open in Editor →
                       </span>
                     </div>

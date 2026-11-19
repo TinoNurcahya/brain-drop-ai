@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo extension-built",
+    "build": "node scripts/generate-icons.js && node scripts/package-extension.js",
     "dev": "echo extension-dev",
     "lint": "echo lint-ok",
     "clean": "echo clean-ok"

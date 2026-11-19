@@ -114,7 +114,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("bold") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Bold (Cmd+B)"
@@ -125,7 +125,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("italic") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Italic (Cmd+I)"
@@ -136,7 +136,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("strike") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Strikethrough"
@@ -147,7 +147,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleCode().run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("code") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Inline Code"
@@ -160,7 +160,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("heading", { level: 2 }) ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Heading 2"
@@ -171,7 +171,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("heading", { level: 3 }) ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Heading 3"
@@ -184,7 +184,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("bulletList") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Bullet List"
@@ -195,7 +195,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleTaskList().run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("taskList") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Task List / Checkbox"
@@ -206,7 +206,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("blockquote") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Blockquote"
@@ -217,7 +217,7 @@ export function TiptapEditor({
         <button
           type="button"
           onClick={setLink}
-          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors ${
+          className={`p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ${
             editor.isActive("link") ? "bg-[var(--bg-tertiary)] text-[var(--accent-blue)]" : ""
           }`}
           title="Insert Link"
@@ -260,7 +260,7 @@ export function TiptapEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={`p-1 rounded text-xs hover:bg-[var(--bg-tertiary)] ${
-              editor.isActive("bold") ? "text-[var(--accent-blue)] font-bold" : "text-white"
+              editor.isActive("bold") ? "text-[var(--accent-blue)] font-bold" : "text-[var(--text-primary)]"
             }`}
           >
             <Bold className="w-3.5 h-3.5" />
@@ -269,7 +269,7 @@ export function TiptapEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={`p-1 rounded text-xs hover:bg-[var(--bg-tertiary)] ${
-              editor.isActive("italic") ? "text-[var(--accent-blue)] italic" : "text-white"
+              editor.isActive("italic") ? "text-[var(--accent-blue)] italic" : "text-[var(--text-primary)]"
             }`}
           >
             <Italic className="w-3.5 h-3.5" />
@@ -278,7 +278,7 @@ export function TiptapEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={`p-1 rounded text-xs hover:bg-[var(--bg-tertiary)] ${
-              editor.isActive("code") ? "text-[var(--accent-blue)]" : "text-white"
+              editor.isActive("code") ? "text-[var(--accent-blue)]" : "text-[var(--text-primary)]"
             }`}
           >
             <Code className="w-3.5 h-3.5" />
@@ -287,7 +287,7 @@ export function TiptapEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             className={`px-1.5 py-0.5 rounded text-xs font-semibold hover:bg-[var(--bg-tertiary)] ${
-              editor.isActive("heading", { level: 2 }) ? "text-[var(--accent-blue)]" : "text-white"
+              editor.isActive("heading", { level: 2 }) ? "text-[var(--accent-blue)]" : "text-[var(--text-primary)]"
             }`}
           >
             H2
@@ -296,7 +296,7 @@ export function TiptapEditor({
             type="button"
             onClick={setLink}
             className={`p-1 rounded text-xs hover:bg-[var(--bg-tertiary)] ${
-              editor.isActive("link") ? "text-[var(--accent-blue)]" : "text-white"
+              editor.isActive("link") ? "text-[var(--accent-blue)]" : "text-[var(--text-primary)]"
             }`}
           >
             <LinkIcon className="w-3.5 h-3.5" />

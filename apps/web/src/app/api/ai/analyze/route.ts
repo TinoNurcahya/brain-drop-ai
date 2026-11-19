@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { executeFirebaseAI } from "@/lib/firebase-ai";
+import { sanitize } from "@braindrop/core";
 
 interface AnalyzePayload {
   title?: string;
@@ -14,6 +16,8 @@ interface AIAnalysisResponse {
   mode: "cloud" | "heuristic";
   model: string;
   latencyMs: number;
+  piiSanitized?: boolean;
+  redactedEntitiesCount?: number;
 }
 
 // Fallback heuristic analyzer when GEMINI_API_KEY is not set
@@ -81,14 +85,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Client Privacy Sandbox: Deterministic PII Sanitization prior to cloud egress
+    const sanitizedContentResult = sanitize(content);
+    const sanitizedTitleResult = title
+      ? sanitize(title)
+      : { sanitized: "Untitled", redactions: [], containsPII: false };
+    const safeContent = sanitizedContentResult.sanitized;
+    const safeTitle = sanitizedTitleResult.sanitized;
+    const piiDetected = sanitizedContentResult.containsPII || sanitizedTitleResult.containsPII;
+    const totalRedacted =
+      sanitizedContentResult.redactions.length + sanitizedTitleResult.redactions.length;
 
-    // Cloud AI execution if API Key is configured
-    if (apiKey) {
-      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-      const systemPrompt = `You are BrainDrop AI, an intelligent executive note analyzer.
+    const systemPrompt = `You are BrainDrop AI, an intelligent executive note analyzer built with Firebase AI Logic.
 Analyze the following user note and return a strict JSON object with:
 - "summary": A concise 1-2 sentence executive summary capturing the core insight.
 - "tags": Array of 3-5 relevant lowercase tags (slug-friendly, e.g. "hybrid-ai", "typescript").
@@ -97,58 +105,43 @@ Analyze the following user note and return a strict JSON object with:
 
 Do not output markdown codeblocks, only pure JSON.`;
 
-      const promptText = `Title: ${title || "Untitled"}\n\nContent:\n${content.slice(0, 8000)}`;
+    const promptText = `${systemPrompt}\n\nTitle: ${safeTitle}\n\nContent:\n${safeContent.slice(0, 8000)}`;
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                { text: systemPrompt },
-                { text: promptText },
-              ],
-            },
-          ],
-          generationConfig: {
-            responseMimeType: "application/json",
-            temperature: 0.2,
-          },
-        }),
+    // 1. Official Firebase AI Logic Runtime Execution
+    try {
+      const fbResult = await executeFirebaseAI(promptText, {
+        model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
       });
 
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        const candidateText =
-          jsonResponse.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (fbResult.text) {
+        try {
+          const cleanJson = fbResult.text.replace(/```json/g, "").replace(/```/g, "").trim();
+          const parsed = JSON.parse(cleanJson);
+          const latencyMs = Math.round(performance.now() - startTime);
 
-        if (candidateText) {
-          try {
-            const parsed = JSON.parse(candidateText);
-            const latencyMs = Math.round(performance.now() - startTime);
+          const result: AIAnalysisResponse = {
+            summary: parsed.summary || "",
+            tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+            keyInsights: Array.isArray(parsed.keyInsights) ? parsed.keyInsights : [],
+            suggestedLinks: Array.isArray(parsed.suggestedLinks) ? parsed.suggestedLinks : [],
+            mode: "cloud",
+            model: `firebase-ai/${fbResult.model}`,
+            latencyMs,
+            piiSanitized: piiDetected,
+            redactedEntitiesCount: totalRedacted,
+          };
 
-            const result: AIAnalysisResponse = {
-              summary: parsed.summary || "",
-              tags: Array.isArray(parsed.tags) ? parsed.tags : [],
-              keyInsights: Array.isArray(parsed.keyInsights) ? parsed.keyInsights : [],
-              suggestedLinks: Array.isArray(parsed.suggestedLinks) ? parsed.suggestedLinks : [],
-              mode: "cloud",
-              model,
-              latencyMs,
-            };
-
-            return NextResponse.json(result);
-          } catch {
-            // JSON parse failed, proceed to heuristic
-          }
+          return NextResponse.json(result);
+        } catch {
+          // JSON parsing failed, proceed to fallback
         }
       }
+    } catch {
+      // Firebase AI call gracefully falls back to local heuristic
     }
 
     // Heuristic Fallback
-    const heuristic = analyzeHeuristically(content, title, existingTags);
+    const heuristic = analyzeHeuristically(safeContent, safeTitle, existingTags);
     const latencyMs = Math.round(performance.now() - startTime);
 
     const result: AIAnalysisResponse = {
@@ -156,6 +149,8 @@ Do not output markdown codeblocks, only pure JSON.`;
       mode: "heuristic",
       model: "local-heuristic-engine",
       latencyMs,
+      piiSanitized: piiDetected,
+      redactedEntitiesCount: totalRedacted,
     };
 
     return NextResponse.json(result);

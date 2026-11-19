@@ -1,4 +1,4 @@
-﻿# BrainDrop AI — Product Requirements Document
+# BrainDrop AI — Product Requirements Document
 
 | Field              | Value                                                        |
 | ------------------ | ------------------------------------------------------------ |
@@ -447,24 +447,23 @@ Feature: Smart Note Canvas
 | **Priority**     | P1 — Should Have                                         |
 | **AI Tier**      | On-Device (relationship detection)                       |
 | **Personas**     | Sarah, Arya                                              |
-| **Dependencies** | React Flow, Gemini Nano 4, Firestore                     |
+| **Dependencies** | Custom HTML5 Canvas Engine, Gemini Nano 4, Firestore     |
 
 #### 7.3.1 Graph Rendering
 
-- **Engine:** React Flow with custom node and edge components.
-- **Nodes:** Each note/clip is a node displaying title, primary tag, and a truncated preview.
-- **Edges:** AI-detected semantic relationships between notes. Edge thickness indicates relationship strength (0.0–1.0 confidence score).
-- **Layout:** Force-directed layout with dagre algorithm. Automatic clustering.
-- **Cluster Coloring:** Nodes colored by primary tag/topic. Legend sidebar shows color mapping.
+- **Engine:** Custom 60 FPS HTML5 Canvas Physics Engine with Coulomb repulsion, Hooke spring attraction, and velocity damping (zero-dependency, hardware-accelerated).
+- **Nodes:** Each note/clip is a node displaying title, primary tag, and a truncated preview with dynamic particle radius.
+- **Edges:** AI-detected semantic relationships between notes with linear gradient alphas reflecting relationship strength.
+- **Layout:** Real-time force-directed physics simulation with automatic harmonic equilibrium.
+- **Cluster Coloring:** Nodes colored by primary tag/topic with cosmic glow rings.
 
 #### 7.3.2 Interactive Features
 
-- **Pan & Zoom:** Smooth pan/zoom with mouse and touch gestures.
-- **Click Node:** Opens note detail in a slide-over panel.
-- **AI Suggestion Banner:** "These 3 notes seem related — merge into a research brief?" with one-click synthesis action.
-- **Filter by Tag:** Toggle tag filters to show/hide node clusters.
-- **Minimap:** React Flow minimap for orientation in large graphs.
-- **Export:** Export graph as PNG for presentations and reports.
+- **Pan & Zoom:** Smooth pan/zoom (35% to 300%) with mouse wheel, touch gestures, and pointer tracking.
+- **Node Dragging:** Interactive direct node drag-and-drop with spring physics snapping.
+- **Click Node:** Opens note detail in an interactive slide-over panel.
+- **1-Hop Neighborhood Highlighting:** Hovering any node highlights direct semantic neighbors and dims distant clusters.
+- **AI Links Toggle:** 1-click toggle (`✨ AI Links`) to highlight cross-concept conceptual bridges with animated dashed lines.
 
 #### 7.3.3 Relationship Detection Pipeline
 
@@ -528,30 +527,28 @@ Feature: Knowledge Graph
 
 - **Flip Animation:** Framer Motion card flip (front = question, back = answer).
 - **Self-Assessment:** User rates recall: "Easy" / "Medium" / "Hard" / "Again."
-- **Leitner System:** Basic 5-box spaced repetition:
-  - Box 1: Review every session
-  - Box 2: Review every 2 sessions
-  - Box 3: Review every 4 sessions
-  - Box 4: Review every 8 sessions
-  - Box 5: Retired (mastered)
-- **Progress Bar:** Visual indicator of cards mastered vs. remaining.
-- **Session Stats:** Cards reviewed, accuracy rate, time spent.
+- **Leitner System:** Tiered 3-Box Spaced Repetition cadence:
+  - Box 1 (Daily Acquisition): Reviewed every session; cards reset here upon incorrect recall.
+  - Box 2 (Intermediate Consolidation): Reviewed every 3 days upon successful recall.
+  - Box 3 (Mastery Retention): Reviewed weekly (7 days); indicates long-term concept consolidation.
+- **Progress Bar:** Visual indicator of cards mastered vs. remaining with Memory Mastery Rate %.
+- **Session Stats:** Cards reviewed, accuracy rate, difficulty rating.
 
 #### 7.4.3 Card Schema
 
 ```typescript
 interface Flashcard {
   id: string;
-  deckId: string;
   noteId: string;           // Source note reference
+  topic: string;
   question: string;
   answer: string;
-  leitnerBox: 1 | 2 | 3 | 4 | 5;
-  nextReviewAt: Timestamp;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  reviewCount: number;
-  correctCount: number;
+  difficulty: "easy" | "medium" | "hard";
+  box: 1 | 2 | 3;           // 3-Tier Leitner Box
+  reviewsCount: number;
+  lastReviewedAt?: string;
+  nextReviewAt?: string;
+  createdAt: string;
 }
 ```
 

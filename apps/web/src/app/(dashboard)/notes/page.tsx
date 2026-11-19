@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   Search,
   Plus,
@@ -13,11 +13,15 @@ import {
   Check,
   FileText,
   RotateCcw,
+  Layers,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotesStore, NoteStoreItem } from "@/stores/notes-store";
 import { TiptapEditor } from "@/components/editor/TiptapEditor";
 import { AIInspector } from "@/components/editor/AIInspector";
+import { SynthesisStudioModal } from "@/components/editor/SynthesisStudioModal";
 
 export default function NotesPage() {
   const {
@@ -38,6 +42,12 @@ export default function NotesPage() {
   const [isAiPanelOpen, setIsAiPanelOpen] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Multi-Select & Synthesis Studio State
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedNoteIds, setSelectedNoteIds] = useState<string[]>([]);
+  const [isSynthesisModalOpen, setIsSynthesisModalOpen] = useState(false);
 
   // Active note lookup
   const activeNote = notes.find((n) => n.id === activeNoteId) || notes[0] || null;
@@ -55,6 +65,16 @@ export default function NotesPage() {
 
     return matchesSearch && matchesTag;
   });
+
+  // Toggle selection for multi-note synthesis
+  const toggleSelectNote = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setSelectedNoteIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const selectedNotesList = notes.filter((n) => selectedNoteIds.includes(n.id));
 
   // Trigger AI Analysis (Hybrid: On-Device Nano -> API Route Cloud/Heuristic)
   const triggerAiAnalysis = useCallback(async (noteToAnalyze: NoteStoreItem) => {
@@ -151,12 +171,10 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
       plainText,
     });
 
-    // Reset previous debounced timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Debounce trigger after 3 seconds of typing idle
     debounceTimerRef.current = setTimeout(() => {
       const currentNote = useNotesStore
         .getState()
@@ -172,7 +190,7 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
     updateNote(activeNote.id, { title: e.target.value });
   };
 
-  const handleNewNote = () => {
+  const handleNewNote = useCallback(() => {
     const created = createNote({
       title: "Untitled Note",
       content: "",
@@ -181,15 +199,33 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
     });
     setActiveNoteId(created.id);
     toast.success("Created new note");
-  };
+  }, [createNote, setActiveNoteId]);
+
+  // Global Keyboard Shortcuts: Cmd/Ctrl+K (Search) & Cmd/Ctrl+N (New Note)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "n") {
+        e.preventDefault();
+        handleNewNote();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleNewNote]);
 
   const handleDeleteNote = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     deleteNote(id);
+    setSelectedNoteIds((prev) => prev.filter((item) => item !== id));
     toast.info("Note deleted");
   };
 
-  // Word count & stats
   const wordCount = activeNote?.plainText
     ? activeNote.plainText.trim().split(/\s+/).filter(Boolean).length
     : 0;
@@ -197,14 +233,15 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-[var(--bg-primary)]">
       {/* LEFT PANEL: Note Explorer & Vault List */}
-      <aside className="w-80 border-r border-[var(--border)] bg-[var(--bg-secondary)]/30 flex flex-col shrink-0">
+      <aside className="w-80 border-r border-[var(--border)] bg-[var(--bg-secondary)]/30 flex flex-col shrink-0 relative">
         {/* Header Search & Actions */}
         <div className="p-4 border-b border-[var(--border)] space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
             <input
+              ref={searchInputRef}
               type="text"
-              placeholder="Search notes, tags, ideas..."
+              placeholder="Search notes, tags... (Ctrl+K)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)]"
@@ -212,7 +249,7 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -227,7 +264,7 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
               </span>
               <button
                 onClick={() => setSelectedTag(null)}
-                className="hover:text-white"
+                className="hover:text-[var(--text-primary)]"
                 title="Clear filter"
               >
                 <X className="w-3 h-3" />
@@ -235,16 +272,34 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
             </div>
           )}
 
-          <button
-            onClick={handleNewNote}
-            className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-[var(--accent-blue)] to-[var(--accent-purple)] text-white text-xs font-medium hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5 shadow-sm"
-          >
-            <Plus className="w-4 h-4" /> New Note
-          </button>
+          {/* New Note & Multi-Select Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleNewNote}
+              className="flex-1 py-2 px-3 rounded-xl bg-[image:var(--gradient-primary)] text-white text-xs font-semibold hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5 shadow-sm"
+            >
+              <Plus className="w-4 h-4" /> New Note
+            </button>
+
+            <button
+              onClick={() => {
+                setIsSelectMode(!isSelectMode);
+                if (isSelectMode) setSelectedNoteIds([]);
+              }}
+              className={`p-2 rounded-xl border text-xs flex items-center gap-1.5 transition-all ${
+                isSelectMode
+                  ? "bg-cyan-500/15 border-cyan-400/50 text-[var(--accent-cyan)] font-semibold shadow-sm"
+                  : "bg-[var(--bg-tertiary)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+              title={isSelectMode ? "Cancel Multi-Select" : "Select Multiple Notes for Synthesis"}
+            >
+              <Layers className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Note List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-[var(--border)]/40">
+        <div className="flex-1 overflow-y-auto divide-y divide-[var(--border)]/40 pb-20">
           {filteredNotes.length === 0 ? (
             <div className="p-8 text-center space-y-3">
               <FileText className="w-8 h-8 text-[var(--text-muted)] mx-auto opacity-40" />
@@ -259,28 +314,53 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
           ) : (
             filteredNotes.map((note) => {
               const isSelected = activeNote?.id === note.id;
+              const isChecked = selectedNoteIds.includes(note.id);
+
               return (
                 <div
                   key={note.id}
-                  onClick={() => setActiveNoteId(note.id)}
+                  onClick={() => {
+                    if (isSelectMode) {
+                      toggleSelectNote(note.id);
+                    } else {
+                      setActiveNoteId(note.id);
+                    }
+                  }}
                   className={`p-3.5 cursor-pointer hover:bg-[var(--bg-tertiary)]/70 transition-colors group relative ${
-                    isSelected
+                    isSelected && !isSelectMode
                       ? "bg-[var(--bg-tertiary)] border-l-2 border-l-[var(--accent-blue)]"
                       : ""
-                  }`}
+                  } ${isChecked ? "bg-cyan-950/20 border-l-2 border-l-cyan-400" : ""}`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="text-xs font-semibold text-[var(--text-primary)] line-clamp-1 flex-1">
-                      {note.isClip && <span className="mr-1">📎</span>}
-                      {note.title || "Untitled Note"}
-                    </h3>
-                    <button
-                      onClick={(e) => handleDeleteNote(note.id, e)}
-                      className="opacity-0 group-hover:opacity-100 hover:text-rose-400 text-[var(--text-muted)] p-1 rounded transition-opacity"
-                      title="Delete Note"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-2 flex-1">
+                      {isSelectMode && (
+                        <button
+                          onClick={(e) => toggleSelectNote(note.id, e)}
+                          className="text-[var(--accent-cyan)] hover:scale-110 transition-transform shrink-0"
+                        >
+                          {isChecked ? (
+                            <CheckSquare className="w-4 h-4 text-[var(--accent-cyan)]" />
+                          ) : (
+                            <Square className="w-4 h-4 text-[var(--text-muted)]" />
+                          )}
+                        </button>
+                      )}
+                      <h3 className="text-xs font-semibold text-[var(--text-primary)] line-clamp-1 flex-1">
+                        {note.isClip && <span className="mr-1">📎</span>}
+                        {note.title || "Untitled Note"}
+                      </h3>
+                    </div>
+
+                    {!isSelectMode && (
+                      <button
+                        onClick={(e) => handleDeleteNote(note.id, e)}
+                        className="opacity-0 group-hover:opacity-100 hover:text-[var(--accent-rose)] text-[var(--text-muted)] p-1 rounded transition-opacity"
+                        title="Delete Note"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
                   </div>
 
                   <p className="text-[11px] text-[var(--text-secondary)] line-clamp-2 mb-2 leading-relaxed">
@@ -303,7 +383,7 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
                     </div>
 
                     {note.aiProcessed && (
-                      <span className="flex items-center gap-0.5 text-emerald-400/80">
+                      <span className="flex items-center gap-0.5 text-[var(--accent-emerald)]/80">
                         <Sparkles className="w-2.5 h-2.5" /> AI
                       </span>
                     )}
@@ -313,6 +393,24 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
             })
           )}
         </div>
+
+        {/* Floating Bottom Action Bar for Multi-Select Synthesis */}
+        {isSelectMode && (
+          <div className="absolute bottom-3 left-3 right-3 p-3 rounded-2xl backdrop-blur-xl bg-[var(--bg-secondary)] border border-cyan-500/30 shadow-2xl flex items-center justify-between gap-2 z-20 animate-in fade-in slide-in-from-bottom-2">
+            <span className="text-xs font-medium text-[var(--text-secondary)]">
+              {selectedNoteIds.length} dipilih
+            </span>
+
+            <button
+              onClick={() => setIsSynthesisModalOpen(true)}
+              disabled={selectedNoteIds.length < 2}
+              className="px-3.5 py-1.5 rounded-xl bg-[image:var(--gradient-primary)] text-white font-semibold text-xs hover:opacity-95 shadow-md shadow-cyan-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Sintesis ({selectedNoteIds.length})</span>
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* CENTER PANEL: Main Workspace & Tiptap Editor */}
@@ -332,9 +430,9 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
               {/* Sync Status Badge */}
               <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
                 {syncStatus === "saving" ? (
-                  <span className="text-amber-400 text-[11px]">Saving...</span>
+                  <span className="text-[var(--accent-amber)] text-[11px]">Saving...</span>
                 ) : (
-                  <span className="flex items-center gap-1 text-emerald-400 text-[11px]">
+                  <span className="flex items-center gap-1 text-[var(--accent-emerald)] text-[11px]">
                     <Check className="w-3 h-3" /> Synced Local
                   </span>
                 )}
@@ -382,7 +480,7 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
           </p>
           <button
             onClick={handleNewNote}
-            className="px-4 py-2 rounded-lg bg-[var(--accent-blue)] text-white text-xs font-medium hover:opacity-90"
+            className="px-4 py-2 rounded-lg bg-[var(--action-blue)] text-white text-xs font-medium hover:opacity-90"
           >
             + Create First Note
           </button>
@@ -397,6 +495,17 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
           isAnalyzing={isAnalyzing}
         />
       )}
+
+      {/* MULTI-NOTE SYNTHESIS STUDIO MODAL */}
+      <SynthesisStudioModal
+        isOpen={isSynthesisModalOpen}
+        onClose={() => {
+          setIsSynthesisModalOpen(false);
+          setIsSelectMode(false);
+          setSelectedNoteIds([]);
+        }}
+        selectedNotes={selectedNotesList}
+      />
     </div>
   );
 }
