@@ -11,7 +11,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@braindrop/core": "*"
+    "@braindrop/core": "*",
+    "firebase": "^11.3.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
