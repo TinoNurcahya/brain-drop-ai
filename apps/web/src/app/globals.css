@@ -1,67 +1,76 @@
 @import "tailwindcss";
 
-:root, :root[data-theme="dark"] {
-  --bg-primary: #0b1116;
-  --bg-secondary: #111a21;
-  --bg-tertiary: #1d2a34;
-  --bg-card: #131e26;
-  --border: #293741;
-  --border-hover: #536b7a;
-  --border-highlight: #344650;
-  --text-primary: #edf3f5;
-  --text-secondary: #adbdc7;
-  --text-muted: #8c9eaa;
-  --accent-blue: #77b6ff;
+@theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+:root, :root[data-theme="dark"], .dark {
+  --bg-primary: #112736;
+  --bg-secondary: #173347;
+  --bg-tertiary: #1f4058;
+  --bg-card: #132c3d;
+  --border: #2a495f;
+  --border-hover: #3d607a;
+  --border-highlight: #4a7291;
+  --text-primary: #eeeae1;
+  --text-secondary: #9cb2be;
+  --text-muted: #6d8390;
+  --accent-blue: #7893D0;
   --accent-purple: #c3a0ef;
   --accent-emerald: #6edbb3;
-  --accent-amber: #efc568;
+  --accent-amber: #c9af89;
   --accent-rose: #ff9cab;
   --accent-cyan: #79d9de;
   --accent-violet: #b5a3f5;
-  --accent-soft: #183034;
-  --action-blue: #2366a7;
-  --button-bg: #9be6e7;
-  --button-text: #10282d;
-  --button-hover: #b9f3f3;
-  --map-line: #42616b;
-  --graph-grid: #253640;
-  --graph-label-bg: #111a21;
-  --graph-edge: #77b6ff;
-  --overlay: rgba(0, 0, 0, .65);
-  --preview-shadow: 0 25px 70px -35px rgba(0,0,0,.65);
-  --gradient-primary: linear-gradient(135deg, #3879ad, #6157b5);
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --action-blue: #263B67;
+  --button-bg: #79d9de;
+  --button-text: #112736;
+  --button-hover: #a0f0f4;
+  --map-line: #2a495f;
+  --graph-grid: #173347;
+  --graph-label-bg: #132c3d;
+  --graph-edge: #7893D0;
+  --overlay: rgba(17, 39, 54, 0.75);
+  --preview-shadow: 0 25px 70px -35px rgba(0, 0, 0, 0.65);
+  --gradient-primary: linear-gradient(135deg, #173347, #1f4058);
   --gradient-emerald: linear-gradient(135deg, #16735d, #126d7c);
-  --gradient-glow: linear-gradient(135deg, rgba(56,189,248,.08), rgba(168,85,247,.06));
+  --gradient-glow: linear-gradient(135deg, rgba(121, 217, 222, 0.1), rgba(120, 147, 208, 0.08));
 }
-:root[data-theme="light"] {
-  --bg-primary: #f6f8f9;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #e9eff2;
-  --bg-card: #ffffff;
-  --border: #d7e0e5;
-  --border-hover: #859ba8;
-  --border-highlight: #c5d3db;
-  --text-primary: #172c38;
-  --text-secondary: #485e6c;
-  --text-muted: #586e7b;
-  --accent-blue: #205fa7;
+:root[data-theme="light"], .light {
+  --bg-primary: #FBF9F5;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F4EFEA;
+  --bg-card: #FFFFFF;
+  --border: #E8E2D8;
+  --border-hover: #D5CCC0;
+  --border-highlight: #C5BCB0;
+  --text-primary: #1C1917;
+  --text-secondary: #68645E;
+  --text-muted: #969188;
+  --accent-blue: #263B67;
   --accent-purple: #7943a6;
   --accent-emerald: #146b50;
-  --accent-amber: #855509;
+  --accent-amber: #B45309;
   --accent-rose: #af304e;
   --accent-cyan: #116c74;
   --accent-violet: #6745b0;
-  --accent-soft: #e0f0f1;
-  --action-blue: #2366a7;
-  --button-bg: #153d47;
-  --button-text: #ffffff;
-  --button-hover: #215562;
-  --map-line: #8aa9b4;
-  --graph-grid: #cad8df;
-  --graph-label-bg: #ffffff;
-  --graph-edge: #205fa7;
-  --overlay: rgba(20,38,49,.45);
-  --preview-shadow: 0 25px 70px -35px rgba(25,55,70,.3);
+  --accent-soft: #F4EFEA;
+  --action-blue: #263B67;
+  --button-bg: #1C1917;
+  --button-text: #FBF9F5;
+  --button-hover: #383431;
+  --map-line: #E8E2D8;
+  --graph-grid: #E8E2D8;
+  --graph-label-bg: #FFFFFF;
+  --graph-edge: #263B67;
+  --overlay: rgba(28, 25, 23, 0.45);
+  --preview-shadow: 0 25px 70px -35px rgba(28, 25, 23, 0.15);
+  --gradient-primary: linear-gradient(135deg, #F4EFEA, #E8E2D8);
+  --gradient-emerald: linear-gradient(135deg, #e8f5ed, #d1eada);
+  --gradient-glow: linear-gradient(135deg, rgba(38, 59, 103, 0.04), rgba(180, 83, 9, 0.03));
 }
 
 
@@ -76,7 +85,7 @@ html {
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -176,6 +185,7 @@ body {
 }
 
 .tiptap h1 {
+  font-family: var(--font-serif);
   font-size: 1.75rem;
   font-weight: 700;
   margin-top: 1.5rem;
@@ -185,6 +195,7 @@ body {
 }
 
 .tiptap h2 {
+  font-family: var(--font-serif);
   font-size: 1.35rem;
   font-weight: 600;
   margin-top: 1.25rem;
@@ -352,9 +363,30 @@ body {
 :focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 4px; }
 button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 button { touch-action: manipulation; }
-::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-::view-transition-old(root) { z-index: 1; }
-::view-transition-new(root) { z-index: 2; }
+/* Global full-viewport circular iris theme transition ala LifeMemory */
+html[data-theme-transition="iris"]::view-transition {
+  pointer-events: none;
+}
+html[data-theme-transition="iris"]::view-transition-group(root),
+html[data-theme-transition="iris"]::view-transition-old(root),
+html[data-theme-transition="iris"]::view-transition-new(root) {
+  animation: none;
+}
+html[data-theme-transition="iris"]::view-transition-image-pair(root) {
+  isolation: auto;
+}
+html[data-theme-transition="iris"]::view-transition-old(root),
+html[data-theme-transition="iris"]::view-transition-new(root) {
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+html[data-theme-transition="iris"]::view-transition-old(root) {
+  z-index: 1;
+}
+html[data-theme-transition="iris"]::view-transition-new(root) {
+  z-index: 2;
+}
+
 @media (max-width: 1100px) { .site-nav { width: calc(100% - 64px); } .desktop-nav { gap: 18px; } }
 @media (max-width: 959px) { .desktop-nav { display: none; } .mobile-menu-toggle { display: grid; } .nav-actions { margin-left: auto; gap: 7px; } }
 @media (max-width: 480px) { .site-nav { width: calc(100% - 32px); min-height: 72px; gap: 10px; } .nav-workspace { display: none; } .brand { font-size: 1.1rem; } }

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { NoteStoreItem, useNotesStore } from "@/stores/notes-store";
+import { NaturalTypewriter } from "@/components/ui/NaturalTypewriter";
 
 interface SynthesisStudioModalProps {
   isOpen: boolean;
@@ -293,7 +294,7 @@ export function SynthesisStudioModal({
 
               {/* Markdown Content Box */}
               <div className="p-5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] max-h-[340px] overflow-y-auto space-y-3 font-mono text-xs text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap selection:bg-cyan-500/30">
-                {synthesisResult.markdown}
+                <NaturalTypewriter text={synthesisResult.markdown} speedMultiplier={2.2} />
               </div>
             </div>
           )}

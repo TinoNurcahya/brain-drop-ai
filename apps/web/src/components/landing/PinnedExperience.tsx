@@ -203,7 +203,6 @@ function PinnedDesktop() {
           </div>
 
           <div className="pin-copy">
-            <p className="eyebrow">FROM A SPARK TO SOMETHING THAT STAYS</p>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={active}
@@ -309,7 +308,6 @@ function MobileTabs() {
   return (
     <div className="experience-layout">
       <div className="experience-copy">
-        <p className="eyebrow">FROM A SPARK TO SOMETHING THAT STAYS</p>
         <h2>
           Your ideas.
           <br />

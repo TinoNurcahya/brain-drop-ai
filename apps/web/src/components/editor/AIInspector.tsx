@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotesStore, NoteStoreItem } from "@/stores/notes-store";
+import { NaturalTypewriter } from "@/components/ui/NaturalTypewriter";
 
 interface AIInspectorProps {
   note: NoteStoreItem;
@@ -291,7 +292,7 @@ export function AIInspector({ note, onAnalyze, isAnalyzing }: AIInspectorProps) 
               </div>
             ) : note.summary ? (
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                {note.summary}
+                <NaturalTypewriter text={note.summary} speedMultiplier={1.8} />
               </p>
             ) : (
               <p className="text-xs text-[var(--text-muted)] italic">

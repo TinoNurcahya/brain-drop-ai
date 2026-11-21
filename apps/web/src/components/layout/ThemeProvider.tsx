@@ -7,18 +7,20 @@ import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark";
 type Origin = { x: number; y: number };
-type ThemeContextValue = { theme: Theme; resolvedTheme: Theme; toggleTheme: (origin?: Origin) => void };
+type ThemeContextValue = {
+  theme: Theme;
+  resolvedTheme: Theme;
+  toggleTheme: (originOrEvent?: React.MouseEvent<HTMLButtonElement> | Origin) => void;
+};
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 // Runs before the first paint; storage access may be disabled by the browser.
-export const themeInitScript = `(function(){var t;try{t=localStorage.getItem('braindrop-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var r=document.documentElement;r.dataset.theme=t;r.classList.toggle('dark',t==='dark');r.style.colorScheme=t;var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==='dark'?'#0b1116':'#f6f8f9'})()`;
+export const themeInitScript = `(function(){var t;try{t=localStorage.getItem('braindrop-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var r=document.documentElement;r.dataset.theme=t;r.classList.toggle('dark',t==='dark');r.style.colorScheme=t;var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==='dark'?'#112736':'#FBF9F5'})()`;
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
   root.dataset.theme = theme;
   root.classList.toggle("dark", theme === "dark");
-  root.style.colorScheme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#0b1116" : "#f6f8f9");
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -48,27 +50,125 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return () => { media.removeEventListener("change", onSystem); window.removeEventListener("storage", onStorage); };
   }, []);
 
-  const toggleTheme = useCallback((origin?: Origin) => {
+  const toggleTheme = useCallback((originOrEvent?: React.MouseEvent<HTMLButtonElement> | Origin) => {
     if (transitioning.current) return;
-    const next: Theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    const root = document.documentElement;
+    const next: Theme = root.dataset.theme === "dark" ? "light" : "dark";
     manual.current = true;
     try { localStorage.setItem("braindrop-theme", next); } catch { /* Session-only preference still works. */ }
-    const update = () => { applyTheme(next); flushSync(() => setTheme(next)); };
-    if (!document.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { update(); return; }
-    const x = origin?.x ?? innerWidth / 2;
-    const y = origin?.y ?? 32;
-    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+    let committed = false;
+    const commit = () => {
+      if (committed) return;
+      committed = true;
+      applyTheme(next);
+      flushSync(() => setTheme(next));
+    };
+
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    if (
+      motionQuery.matches ||
+      document.hidden ||
+      typeof document.startViewTransition !== "function" ||
+      typeof root.animate !== "function" ||
+      typeof KeyframeEffect === "undefined" ||
+      !("pseudoElement" in KeyframeEffect.prototype) ||
+      !CSS.supports("selector(::view-transition-new(root))")
+    ) {
+      commit();
+      return;
+    }
+
+    let x = window.innerWidth - 36;
+    let y = 32;
+
+    if (originOrEvent) {
+      if ("currentTarget" in originOrEvent && originOrEvent.currentTarget instanceof HTMLElement) {
+        const rect = originOrEvent.currentTarget.getBoundingClientRect();
+        const isClick = typeof originOrEvent.clientX === "number" && originOrEvent.detail !== 0;
+        x = isClick ? originOrEvent.clientX : rect.left + rect.width / 2;
+        y = isClick ? originOrEvent.clientY : rect.top + rect.height / 2;
+      } else if ("x" in originOrEvent && "y" in originOrEvent) {
+        x = originOrEvent.x;
+        y = originOrEvent.y;
+      }
+    }
+
+    x = Math.max(0, Math.min(window.innerWidth, x));
+    y = Math.max(0, Math.min(window.innerHeight, y));
+    const radius = Math.ceil(Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))) + 1;
+
+    let transition: ViewTransition | undefined;
+    let animation: Animation | undefined;
+    let cancelled = false;
+    let cleaned = false;
+
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      animation?.cancel();
+      window.removeEventListener("resize", cancel);
+      window.visualViewport?.removeEventListener("resize", cancel);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      motionQuery.removeEventListener("change", onMotionChange);
+      root.removeAttribute("data-theme-transition");
+      transitioning.current = false;
+      // Post-transition updates without interrupting the 60fps frame loop
+      root.style.colorScheme = next;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", next === "dark" ? "#112736" : "#FBF9F5");
+    };
+
+    const cancel = () => {
+      if (cleaned) return;
+      cancelled = true;
+      commit();
+      transition?.skipTransition();
+      animation?.cancel();
+      cleanup();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) cancel();
+    };
+    const onMotionChange = () => {
+      if (motionQuery.matches) cancel();
+    };
+
     transitioning.current = true;
+    root.setAttribute("data-theme-transition", "iris");
+    window.addEventListener("resize", cancel);
+    window.visualViewport?.addEventListener("resize", cancel);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    motionQuery.addEventListener("change", onMotionChange);
+
     try {
-      const transition = document.startViewTransition(update);
-      void transition.ready.then(() => {
-        document.documentElement.animate(
-          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-          { duration: 450, easing: "cubic-bezier(.22,1,.36,1)", pseudoElement: "::view-transition-new(root)" },
-        );
-      }).catch(() => { /* Theme already applied when animation is unavailable. */ });
-      void transition.finished.catch(() => {}).finally(() => { transitioning.current = false; });
-    } catch { transitioning.current = false; update(); }
+      transition = document.startViewTransition(() => {
+        if (!cancelled) commit();
+      });
+      void transition.finished.then(cleanup, cancel);
+      void transition.ready
+        .then(() => {
+          if (cancelled || cleaned) return;
+          animation = root.animate(
+            {
+              clipPath: [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${radius}px at ${x}px ${y}px)`,
+              ],
+            },
+            {
+              duration: 500,
+              easing: "cubic-bezier(.4,0,.2,1)",
+              pseudoElement: "::view-transition-new(root)",
+            }
+          );
+          void animation.finished.catch(cancel);
+        })
+        .catch(cancel);
+    } catch {
+      cancel();
+    }
   }, []);
 
   return <ThemeContext.Provider value={{ theme, resolvedTheme: theme, toggleTheme }}>
@@ -87,8 +187,7 @@ export function ThemeToggle() {
   const { resolvedTheme, toggleTheme } = useTheme();
   const label = `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme`;
   return <button type="button" className="theme-toggle" aria-label={label} title={label} onClick={(event) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    toggleTheme({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    toggleTheme(event);
   }}>
     <Sun className="theme-sun" size={19} aria-hidden="true" />
     <Moon className="theme-moon" size={19} aria-hidden="true" />

@@ -4,6 +4,12 @@ import { usePathname } from "next/navigation";
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // On the landing page, avoid ancestor transform to ensure native position: sticky / fixed behavior
+  if (pathname === "/") {
+    return <>{children}</>;
+  }
+
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div

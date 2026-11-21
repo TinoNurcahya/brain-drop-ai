@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Brain, Menu, X } from "lucide-react";
+import { Brain, Menu, X, Search, ArrowUpRight } from "lucide-react";
 import { initAppCheck } from "@/lib/firebase";
 import { ThemeToggle } from "./ThemeProvider";
 
@@ -15,8 +15,10 @@ const workspaceLinks = [
   { href: "/dashboard", label: "Dashboard" },
 ];
 const landingLinks = [
-  { href: "/#experience", label: "The experience" },
-  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#canvas-journey", label: "Experience" },
+  { href: "/#manifesto-folders", label: "Philosophy" },
+  { href: "/#manifesto-privacy", label: "Hybrid AI" },
+  { href: "/#manifesto-clipper", label: "Extension" },
 ];
 
 export function Navbar() {
@@ -119,9 +121,37 @@ export function Navbar() {
           ))}
         </div>
         <div className="nav-actions">
+          {pathname === "/" && (
+            <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] text-[11px] font-mono text-[var(--text-muted)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-emerald)] animate-pulse" />
+              <span>Gemini Nano</span>
+              <span className="text-[var(--border)]">|</span>
+              <span className="text-[var(--accent-emerald)] font-medium">48ms Latency</span>
+              <span className="text-[var(--border)]">|</span>
+              <span className="text-[var(--accent-cyan)] font-medium">Zero Data Leakage</span>
+            </div>
+          )}
+          {pathname !== "/" && (
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer shadow-sm"
+              title="Open Command Palette (Cmd+K)"
+            >
+              <Search size={13} className="text-[var(--accent-cyan)]" />
+              <span className="font-sans text-[11px]">Search</span>
+              <kbd className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-tertiary)] border border-[var(--border)] text-[var(--text-secondary)]">
+                ⌘K
+              </kbd>
+            </button>
+          )}
           <ThemeToggle />
-          <Link href="/notes" className="nav-workspace">
-            Workspace
+          <Link
+            href="/notes"
+            className="nav-workspace flex items-center gap-1.5 !bg-[var(--accent-cyan)]/15 !text-[var(--accent-cyan)] !border-[var(--accent-cyan)]/30 hover:!bg-[var(--accent-cyan)]/25 transition-all text-xs font-semibold py-1.5 px-3 sm:px-4"
+          >
+            <span>Open App</span>
+            <ArrowUpRight size={13} />
           </Link>
           <button
             ref={menuButton}

@@ -423,7 +423,7 @@ ${noteToAnalyze.content.slice(0, 1500)}`;
               value={activeNote.title}
               onChange={handleTitleChange}
               placeholder="Note title..."
-              className="flex-1 text-base md:text-lg font-bold bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
+              className="flex-1 text-base md:text-xl font-serif font-bold tracking-tight bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
             />
 
             <div className="flex items-center gap-3 shrink-0">
