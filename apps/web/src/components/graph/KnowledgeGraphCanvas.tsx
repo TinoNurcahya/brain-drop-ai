@@ -481,7 +481,7 @@ export function KnowledgeGraphCanvas({
         }
 
         // Node Title Label
-        ctx.font = isHovered ? "bold 14px system-ui, sans-serif" : "14px system-ui, sans-serif";
+        ctx.font = isHovered ? "bold 14px 'Plus Jakarta Sans', sans-serif" : "14px 'Plus Jakarta Sans', sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
 

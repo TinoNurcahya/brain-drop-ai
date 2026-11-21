@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Cpu, Cloud, ShieldCheck, HardDrive, ChevronUp, ChevronDown } from "lucide-react";
 import { useNotesStore } from "@/stores/notes-store";
+import { RollingNumberCounter } from "@/components/ui/RollingNumberCounter";
 
 export function FloatingTelemetryHUD() {
   const pathname = usePathname();
@@ -52,7 +53,7 @@ export function FloatingTelemetryHUD() {
               HYBRID TELEMETRY
             </span>
             <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/25 text-[var(--accent-emerald)] text-[10px] font-mono font-medium">
-              {onDeviceOps} Nano Ops
+              <RollingNumberCounter value={onDeviceOps} suffix=" Nano Ops" />
             </span>
           </div>
           {isOpen ? (
@@ -70,7 +71,7 @@ export function FloatingTelemetryHUD() {
                 <Cpu className="w-3.5 h-3.5 text-[var(--accent-emerald)]" /> Client (Nano):
               </span>
               <span className="font-mono text-[var(--accent-emerald)] font-bold">
-                {onDeviceOps} ops ({avgNanoLatency}ms)
+                <RollingNumberCounter value={onDeviceOps} suffix=" ops" /> (<RollingNumberCounter value={avgNanoLatency} suffix="ms" />)
               </span>
             </div>
 
@@ -79,7 +80,7 @@ export function FloatingTelemetryHUD() {
                 <Cloud className="w-3.5 h-3.5 text-[var(--accent-cyan)]" /> Cloud (Gemini Flash):
               </span>
               <span className="font-mono text-[var(--accent-cyan)] font-bold">
-                {cloudOps} ops
+                <RollingNumberCounter value={cloudOps} suffix=" ops" />
               </span>
             </div>
 

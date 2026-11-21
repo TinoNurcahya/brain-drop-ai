@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Cpu, Cloud, ArrowRight } from "lucide-react";
+import { Cpu, Cloud } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -99,15 +99,15 @@ export function HybridDiagram() {
             width="180"
             height="110"
             rx="16"
-            fill="var(--accent-soft)"
-            stroke="var(--accent-emerald)"
+            fill="var(--landing-accent-soft)"
+            stroke="var(--landing-accent)"
             strokeWidth="1.5"
           />
           <text
             x="110"
             y="108"
             textAnchor="middle"
-            fill="var(--accent-emerald)"
+            fill="var(--landing-accent)"
             fontSize="14"
             fontWeight="600"
           >
@@ -126,7 +126,7 @@ export function HybridDiagram() {
             x="110"
             y="148"
             textAnchor="middle"
-            fill="var(--accent-emerald)"
+            fill="var(--landing-accent)"
             fontSize="10"
             fontWeight="500"
           >
@@ -138,14 +138,14 @@ export function HybridDiagram() {
         <path
           className="diag-path-1"
           d="M200 120 L290 120"
-          stroke="var(--accent-emerald)"
+          stroke="var(--landing-accent)"
           strokeWidth="2"
           strokeDasharray="180"
           fill="none"
           opacity="0.7"
         />
         {/* Animated dot on path 1 */}
-        <circle className="diag-dot" r="4" fill="var(--accent-emerald)" opacity="0">
+        <circle className="diag-dot" r="4" fill="var(--landing-accent)" opacity="0">
           <animateMotion dur="1.8s" repeatCount="indefinite" path="M200 120 L290 120" />
         </circle>
 
@@ -157,15 +157,15 @@ export function HybridDiagram() {
             width="180"
             height="90"
             rx="16"
-            fill="var(--bg-tertiary)"
-            stroke="var(--accent-cyan)"
+            fill="var(--landing-bg-tertiary)"
+            stroke="var(--landing-accent-light)"
             strokeWidth="1.5"
           />
           <text
             x="380"
             y="112"
             textAnchor="middle"
-            fill="var(--accent-cyan)"
+            fill="var(--landing-accent-light)"
             fontSize="14"
             fontWeight="600"
           >
@@ -195,14 +195,14 @@ export function HybridDiagram() {
         <path
           className="diag-path-2"
           d="M470 120 L560 120"
-          stroke="var(--accent-blue)"
+          stroke="var(--landing-accent-light)"
           strokeWidth="2"
           strokeDasharray="180"
           fill="none"
           opacity="0.7"
         />
         {/* Animated dot on path 2 */}
-        <circle className="diag-dot" r="4" fill="var(--accent-blue)" opacity="0">
+        <circle className="diag-dot" r="4" fill="var(--landing-accent-light)" opacity="0">
           <animateMotion dur="2.2s" repeatCount="indefinite" path="M470 120 L560 120" />
         </circle>
 
@@ -214,15 +214,15 @@ export function HybridDiagram() {
             width="180"
             height="110"
             rx="16"
-            fill="var(--accent-soft)"
-            stroke="var(--accent-blue)"
+            fill="var(--landing-accent-soft)"
+            stroke="var(--landing-accent-light)"
             strokeWidth="1.5"
           />
           <text
             x="650"
             y="108"
             textAnchor="middle"
-            fill="var(--accent-blue)"
+            fill="var(--landing-accent-light)"
             fontSize="14"
             fontWeight="600"
           >
@@ -241,7 +241,7 @@ export function HybridDiagram() {
             x="650"
             y="148"
             textAnchor="middle"
-            fill="var(--accent-blue)"
+            fill="var(--landing-accent-light)"
             fontSize="10"
             fontWeight="500"
           >

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useNotesStore } from "@/stores/notes-store";
 import { useFlashcardStore } from "@/stores/flashcards-store";
+import { RollingNumberCounter } from "@/components/ui/RollingNumberCounter";
 
 export default function DashboardPage() {
   const notes = useNotesStore((state) => state.notes);
@@ -249,7 +250,9 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-[var(--text-primary)]">{metrics.totalNotes}</span>
+            <span className="text-3xl font-black text-[var(--text-primary)]">
+              <RollingNumberCounter value={metrics.totalNotes} />
+            </span>
             <span className="text-[11px] text-[var(--accent-emerald)] font-mono">+100% Local</span>
           </div>
           <Link
@@ -270,7 +273,9 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-[var(--text-primary)]">{metrics.totalClips}</span>
+            <span className="text-3xl font-black text-[var(--text-primary)]">
+              <RollingNumberCounter value={metrics.totalClips} />
+            </span>
             <span className="text-[11px] text-[var(--accent-purple)] font-mono">Chrome MV3</span>
           </div>
           <Link
@@ -291,7 +296,9 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-[var(--text-primary)]">{metrics.totalFlashcards}</span>
+            <span className="text-3xl font-black text-[var(--text-primary)]">
+              <RollingNumberCounter value={metrics.totalFlashcards} />
+            </span>
             <span className="text-[11px] text-[var(--accent-amber)] font-mono">Active Recall</span>
           </div>
           <Link
@@ -312,7 +319,9 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-[var(--text-primary)]">{metrics.totalConnections}</span>
+            <span className="text-3xl font-black text-[var(--text-primary)]">
+              <RollingNumberCounter value={metrics.totalConnections} />
+            </span>
             <span className="text-[11px] text-[var(--accent-emerald)] font-mono">Semantic Links</span>
           </div>
           <Link
@@ -341,7 +350,7 @@ export default function DashboardPage() {
             </div>
             <div className="text-right font-mono">
               <span className="text-2xl font-black text-[var(--accent-emerald)]">
-                {metrics.onDeviceRatio}%
+                <RollingNumberCounter value={metrics.onDeviceRatio} suffix="%" />
               </span>
               <div className="text-[10px] text-[var(--text-secondary)]">Local Operations</div>
             </div>
@@ -356,7 +365,7 @@ export default function DashboardPage() {
                   <span>On-Device Operations (Gemini Nano)</span>
                 </span>
                 <span className="font-mono text-[var(--accent-emerald)] font-bold">
-                  {metrics.onDeviceOps} ops
+                  <RollingNumberCounter value={metrics.onDeviceOps} suffix=" ops" />
                 </span>
               </div>
               <div className="w-full h-2 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
@@ -375,7 +384,7 @@ export default function DashboardPage() {
                   <span>Cloud Fallback Operations (Gemini 3.8 Flash)</span>
                 </span>
                 <span className="font-mono text-[var(--accent-cyan)] font-bold">
-                  {metrics.cloudOps} ops
+                  <RollingNumberCounter value={metrics.cloudOps} suffix=" ops" />
                 </span>
               </div>
               <div className="w-full h-2 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
