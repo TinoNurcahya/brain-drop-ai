@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { Brain, Menu, X, Search, ArrowUpRight } from "lucide-react";
 import { initAppCheck } from "@/lib/firebase";
 import { ThemeToggle } from "./ThemeProvider";
+import { LocaleToggle, useLocale } from "./LocaleProvider";
+import { RollingText } from "@/components/ui/RollingText";
 
 const workspaceLinks = [
   { href: "/capture", label: "Capture" },
@@ -14,21 +16,15 @@ const workspaceLinks = [
   { href: "/flashcards", label: "Cards" },
   { href: "/dashboard", label: "Dashboard" },
 ];
-const landingLinks = [
-  { href: "/#canvas-journey", label: "Experience" },
-  { href: "/#manifesto-folders", label: "Philosophy" },
-  { href: "/#manifesto-privacy", label: "Hybrid AI" },
-  { href: "/#manifesto-clipper", label: "Extension" },
-];
 
 export function Navbar() {
   const pathname = usePathname();
+  const { copy } = useLocale();
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const lastScroll = useRef(0);
   const menuButton = useRef<HTMLButtonElement>(null);
-  const links = pathname === "/" ? landingLinks : workspaceLinks;
 
   useEffect(() => {
     initAppCheck();
@@ -37,7 +33,6 @@ export function Navbar() {
     setOpen(false);
   }, [pathname]);
 
-  // Keyboard close + responsive menu collapse
   useEffect(() => {
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -57,7 +52,6 @@ export function Navbar() {
     };
   }, []);
 
-  // Scroll-direction-aware hide/reveal (only on landing page)
   useEffect(() => {
     const isLanding = pathname === "/";
 
@@ -66,13 +60,11 @@ export function Navbar() {
       setScrolled(current > 60);
 
       if (isLanding) {
-        // Always show near top
         if (current < 80) {
           setVisible(true);
           lastScroll.current = current;
           return;
         }
-        // Show on scroll up, hide on scroll down
         const delta = current - lastScroll.current;
         if (delta > 5) setVisible(false);
         else if (delta < -5) setVisible(true);
@@ -86,10 +78,62 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
 
+  // /v2 renders its own header
+  if (pathname === "/v2") return null;
+
+  // Awwwards Editorial Header on Landing Page ("/")
+  if (pathname === "/") {
+    return (
+      <header
+        className={`aw-landing-header ${scrolled ? "is-scrolled" : ""} ${
+          !visible ? "is-hidden" : ""
+        }`}
+      >
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
+
+        <a
+          href="#canvas-journey"
+          className="aw-wordmark"
+          aria-label="BrainDrop AI, back to top"
+        >
+          <span className="aw-brand-icon" aria-hidden="true">
+            ✳
+          </span>
+          <span className="aw-brand-text">
+            {"braindrop / ai".split("").map((char, i) => (
+              <span
+                key={i}
+                className="aw-brand-char"
+                style={{ "--char-index": i } as React.CSSProperties}
+              >
+                {char === " " ? "\u00A0" : char}
+              </span>
+            ))}
+          </span>
+          <span className="aw-brand-period">.</span>
+        </a>
+
+        <span className="aw-header-description">{copy.header.subtitle}</span>
+
+        <div className="aw-header-actions">
+          <LocaleToggle />
+          <ThemeToggle />
+          <Link href="/notes" className="aw-demo-link group">
+            <RollingText text={copy.header.launchWorkspace} />{" "}
+            <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
+  // Functional Workspace Header on App Routes
   const headerClass = [
     "site-header",
     scrolled ? "scrolled" : "",
-    !visible ? "hidden" : "",
+    !visible ? "nav-hidden" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -110,7 +154,7 @@ export function Navbar() {
           </span>
         </Link>
         <div className="desktop-nav">
-          {links.map((link) => (
+          {workspaceLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -121,30 +165,20 @@ export function Navbar() {
           ))}
         </div>
         <div className="nav-actions">
-          {pathname === "/" && (
-            <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] text-[11px] font-mono text-[var(--text-muted)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-emerald)] animate-pulse" />
-              <span>Gemini Nano</span>
-              <span className="text-[var(--border)]">|</span>
-              <span className="text-[var(--accent-emerald)] font-medium">48ms Latency</span>
-              <span className="text-[var(--border)]">|</span>
-              <span className="text-[var(--accent-cyan)] font-medium">Zero Data Leakage</span>
-            </div>
-          )}
-          {pathname !== "/" && (
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer shadow-sm"
-              title="Open Command Palette (Cmd+K)"
-            >
-              <Search size={13} className="text-[var(--accent-cyan)]" />
-              <span className="font-sans text-[11px]">Search</span>
-              <kbd className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-tertiary)] border border-[var(--border)] text-[var(--text-secondary)]">
-                ⌘K
-              </kbd>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("open-command-palette"))
+            }
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer shadow-sm"
+            title="Open Command Palette (Cmd+K)"
+          >
+            <Search size={13} className="text-[var(--accent-cyan)]" />
+            <span className="font-sans text-[11px]">Search</span>
+            <kbd className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-tertiary)] border border-[var(--border)] text-[var(--text-secondary)]">
+              ⌘K
+            </kbd>
+          </button>
           <ThemeToggle />
           <Link
             href="/notes"
@@ -167,7 +201,7 @@ export function Navbar() {
         </div>
         {open && (
           <div className="mobile-nav" id="mobile-navigation">
-            {links.map((link) => (
+            {workspaceLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

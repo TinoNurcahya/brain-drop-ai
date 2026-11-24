@@ -36,7 +36,7 @@ export function FloatingTelemetryHUD() {
         )
       : 35;
 
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname === "/v2") return null;
 
   return (
     <aside aria-label="System Telemetry" className="fixed bottom-4 sm:bottom-5 right-4 sm:right-5 z-40 select-none">

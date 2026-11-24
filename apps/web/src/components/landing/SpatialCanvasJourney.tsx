@@ -3,17 +3,21 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SpatialHUD } from "./SpatialHUD";
 import { HeroNeuralConstellation } from "./HeroNeuralConstellation";
-import { InteractiveSimulators } from "./InteractiveSimulators";
+import { AwwwardsLandingChapters } from "./AwwwardsLandingChapters";
+import { useLocale } from "@/components/layout/LocaleProvider";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
+import { RollingText } from "@/components/ui/RollingText";
 import "@/styles/spatial-canvas.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function SpatialCanvasJourney() {
+  useSmoothScroll();
+  const { copy } = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const cameraRigRef = useRef<HTMLDivElement>(null);
@@ -456,200 +460,62 @@ export function SpatialCanvasJourney() {
           ==================================================================== */}
       <div className="block md:hidden">
         {/* Mobile Hero */}
-        <section className="px-5 pt-24 pb-12">
-          <div className="max-w-lg mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] text-[11px] font-mono text-[var(--accent-emerald)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-emerald)] animate-pulse" />
-              <span>GEMINI NANO ON-DEVICE · 48MS</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl font-serif tracking-tight text-[var(--spatial-text-main)] leading-tight">
-              Capture anything. <br />
-              <em className="text-[var(--accent-cyan)] italic">Forget nothing.</em>
+        <section className="px-6 pt-28 pb-16">
+          <div className="max-w-lg mx-auto space-y-6">
+            <h1 className="text-4xl sm:text-5xl font-serif tracking-tight text-[var(--spatial-text-main)] leading-[1.02]">
+              {copy.hud.waypoints[0].headline} <br />
+              <em className="text-[var(--accent-cyan)] italic">{copy.hud.waypoints[0].accent}</em>
             </h1>
 
-            <p className="text-sm text-[var(--spatial-text-muted)] leading-relaxed">
-              The privacy-first hybrid second brain. Process private notes on-device with Gemini Nano, 
-              and synthesize complex research with cloud intelligence.
+            <p className="text-base text-[var(--spatial-text-muted)] leading-relaxed">
+              {copy.hud.waypoints[0].subtext}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Link
-                href="/notes"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold text-sm bg-[var(--accent-cyan)] text-[#0b1116] hover:bg-[#a0f0f4] transition-all shadow-[0_0_20px_rgba(121,217,222,0.35)]"
-              >
-                <span>Launch Workspace</span>
-                <ArrowUpRight size={16} />
+            <div className="flex flex-wrap items-center gap-6 pt-2">
+              <Link href="/notes" className="aw-closing-primary group">
+                <RollingText text={copy.hud.launchWorkspace} />{" "}
+                <span aria-hidden="true">↗</span>
               </Link>
-              <Link
-                href="/capture"
-                className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-sm border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
-              >
-                <span>Quick Capture Note</span>
+              <Link href="/capture" className="aw-text-link group">
+                <RollingText text={copy.mobile.quickCaptureNote} />{" "}
+                <span aria-hidden="true">↗</span>
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Mobile Milestones Stack */}
-        <section className="px-4 space-y-6 pb-12 max-w-lg mx-auto">
-          {/* Milestone 1: Dashboard */}
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)]/90 backdrop-blur-xl p-4 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-[var(--accent-emerald)] font-semibold">Workspace Dashboard</span>
-              <span className="text-[var(--spatial-text-muted)]">~48ms Latency</span>
+        {/* Mobile Milestones Stack (Hairline Editorial Divided, Zero Boxy Cards) */}
+        <section className="px-6 pb-16 max-w-lg mx-auto divide-y divide-[var(--spatial-border)] border-y border-[var(--spatial-border)]">
+          {[
+            { src: "/dashboard-desktop-dark.png", alt: "BrainDrop Workspace", item: copy.mobile.milestones[0] },
+            { src: "/topics-desktop-dark.png", alt: "BrainDrop Knowledge Graph", item: copy.mobile.milestones[1] },
+            { src: "/chat-desktop-dark.png", alt: "BrainDrop Synthesis", item: copy.mobile.milestones[2] },
+            { src: "/reflection-desktop-dark.png", alt: "BrainDrop Reflection", item: copy.mobile.milestones[3] },
+          ].map(({ src, alt, item }) => (
+            <div key={item.title} className="py-10 space-y-4">
+              <div className="flex items-center justify-between text-sm font-mono">
+                <span className="text-[var(--spatial-text-main)] font-semibold">{item.title}</span>
+                <span className="text-[var(--spatial-cyan)]">{item.meta}</span>
+              </div>
+              <div className="overflow-hidden border border-[var(--spatial-border)] bg-[#0b1116]">
+                <Image
+                  src={src}
+                  alt={alt}
+                  width={800}
+                  height={460}
+                  className="w-full h-auto"
+                />
+              </div>
+              <p className="text-sm text-[var(--spatial-text-secondary)] leading-relaxed">
+                {item.description}
+              </p>
             </div>
-            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[#0b1116]">
-              <Image
-                src="/dashboard-desktop-dark.png"
-                alt="BrainDrop Workspace"
-                width={800}
-                height={460}
-                className="w-full h-auto"
-              />
-            </div>
-            <p className="text-xs text-[var(--spatial-text-muted)] leading-relaxed">
-              Zero folder hierarchies. Local Gemini Nano parses unstructured research notes directly on your device NPU without network latency.
-            </p>
-          </div>
-
-          {/* Milestone 2: Knowledge Graph */}
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)]/90 backdrop-blur-xl p-4 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-[var(--accent-cyan)] font-semibold">Autonomous Knowledge Graph</span>
-              <span className="text-[var(--spatial-text-muted)]">1536-Dim Vectors</span>
-            </div>
-            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[#0b1116]">
-              <Image
-                src="/topics-desktop-dark.png"
-                alt="BrainDrop Knowledge Graph"
-                width={800}
-                height={460}
-                className="w-full h-auto"
-              />
-            </div>
-            <p className="text-xs text-[var(--spatial-text-muted)] leading-relaxed">
-              Your thoughts form an organic knowledge graph. Related passages, concepts, and papers link autonomously through neural proximity.
-            </p>
-          </div>
-
-          {/* Milestone 3: Synthesis Studio */}
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)]/90 backdrop-blur-xl p-4 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-[var(--accent-cyan)] font-semibold">Cross-Document AI Synthesis</span>
-              <span className="text-[var(--spatial-text-muted)]">Gemini 3.8 Flash</span>
-            </div>
-            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[#0b1116]">
-              <Image
-                src="/chat-desktop-dark.png"
-                alt="BrainDrop Synthesis"
-                width={800}
-                height={460}
-                className="w-full h-auto"
-              />
-            </div>
-            <p className="text-xs text-[var(--spatial-text-muted)] leading-relaxed">
-              When research demands macroscopic understanding, Gemini 3.8 Flash fuses disparate threads into cohesive literature reviews.
-            </p>
-          </div>
-
-          {/* Milestone 4: Active Recall */}
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)]/90 backdrop-blur-xl p-4 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-[#c3a0ef] font-semibold">Active Retrieval & Study Cards</span>
-              <span className="text-[var(--spatial-text-muted)]">Leitner Curve</span>
-            </div>
-            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[#0b1116]">
-              <Image
-                src="/reflection-desktop-dark.png"
-                alt="BrainDrop Reflection"
-                width={800}
-                height={460}
-                className="w-full h-auto"
-              />
-            </div>
-            <p className="text-xs text-[var(--spatial-text-muted)] leading-relaxed">
-              Invert the forgetting curve with spaced retrieval flashcards and active testing generated from your verified vault notes.
-            </p>
-          </div>
+          ))}
         </section>
       </div>
 
-      {/* Interactive Intelligence Playground (Web Clipper & Vector Similarity Simulators) */}
-      <InteractiveSimulators />
-
-      {/* Clean Minimal Finale & Footer */}
-      <SpatialCanvasFinale />
+      {/* Four Awwwards Editorial & Tactile Chapters Below the Spatial Canvas */}
+      <AwwwardsLandingChapters />
     </div>
-  );
-}
-
-function SpatialCanvasFinale() {
-  return (
-    <footer className="spatial-finale" aria-labelledby="finale-title">
-      <div className="spatial-finale-container">
-        <div className="finale-content">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--spatial-border)] bg-[var(--spatial-surface)] text-[11px] font-mono text-[var(--spatial-cyan)] mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--spatial-cyan)] animate-pulse" />
-            <span>HYBRID SECOND BRAIN · GEMINI NANO + CLOUD</span>
-          </div>
-
-          <h2 id="finale-title" className="finale-headline">
-            Your mind, <br />
-            <em>unbroken.</em>
-          </h2>
-
-          <p className="finale-subtext">
-            Capture spontaneous thoughts instantly on-device with zero cloud footprint, 
-            and synthesize macroscopic research when you need deep reasoning.
-          </p>
-
-          <div className="finale-actions">
-            <Link href="/notes" className="finale-cta-primary">
-              <span>Launch Workspace</span>
-              <ArrowUpRight size={16} />
-            </Link>
-            <Link href="/capture" className="finale-cta-secondary">
-              <span>Quick Capture</span>
-            </Link>
-          </div>
-        </div>
-
-        <div className="finale-bottom-bar">
-          <div className="finale-brand-col">
-            <span className="font-serif text-lg tracking-tight text-[var(--spatial-text-main)]">
-              braindrop <em className="text-[var(--spatial-cyan)] italic">/ ai</em>
-            </span>
-            <p className="text-xs font-mono text-[var(--spatial-text-muted)] mt-1">
-              Google #BuildHybridAI 2026 Hackathon
-            </p>
-            <p className="text-xs text-[var(--spatial-text-muted)] mt-0.5 opacity-60">
-              Open-source Apache 2.0 License.
-            </p>
-          </div>
-
-          <div className="finale-nav-col">
-            <div className="nav-group">
-              <span className="nav-group-title">WORKSPACE</span>
-              <Link href="/notes">Notes</Link>
-              <Link href="/graph">Topology Graph</Link>
-              <Link href="/flashcards">Study Cards</Link>
-              <Link href="/dashboard">Telemetry Dashboard</Link>
-            </div>
-
-            <div className="nav-group">
-              <span className="nav-group-title">DEVELOPER</span>
-              <a href="https://github.com/tinonurcahya/braindrop-ai" target="_blank" rel="noreferrer">
-                GitHub Repository
-              </a>
-              <a href="https://devpost.com/software/braindrop-ai" target="_blank" rel="noreferrer">
-                Devpost Submission
-              </a>
-              <Link href="/api/clips">API Endpoints</Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
   );
 }
