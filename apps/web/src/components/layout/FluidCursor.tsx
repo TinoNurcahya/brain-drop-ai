@@ -17,7 +17,7 @@ interface SparkParticle {
 export function FluidCursor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pathname = usePathname();
-  const isLanding = pathname === "/";
+  const isLanding = pathname === "/" || pathname === "/v2";
 
   useEffect(() => {
     // Disable on touch devices or reduced motion
@@ -56,10 +56,10 @@ export function FluidCursor() {
 
     const colors = isLanding
       ? [
-          "rgba(232, 168, 56, ", // warm amber
-          "rgba(240, 188, 90, ", // gold light
-          "rgba(255, 214, 138, ", // soft warm amber
-          "rgba(255, 255, 255, ", // white spark
+          "rgba(121, 217, 222, ", // oceanic cyan
+          "rgba(110, 219, 179, ", // emerald
+          "rgba(195, 160, 239, ", // soft purple
+          "rgba(255, 255, 255, ", // crisp spark
         ]
       : [
           "rgba(110, 219, 179, ", // emerald
@@ -157,7 +157,7 @@ export function FluidCursor() {
         if (mouse.isHoveringInteractive) {
           // Expanded magnetic aura
           ctx.strokeStyle = isLanding
-            ? "rgba(232, 168, 56, 0.75)"
+            ? "rgba(121, 217, 222, 0.78)"
             : "rgba(121, 217, 222, 0.75)";
           ctx.lineWidth = 1.5;
           ctx.beginPath();
@@ -165,7 +165,7 @@ export function FluidCursor() {
           ctx.stroke();
 
           ctx.fillStyle = isLanding
-            ? "rgba(240, 188, 90, 0.9)"
+            ? "rgba(110, 219, 179, 0.92)"
             : "rgba(110, 219, 179, 0.9)";
           ctx.beginPath();
           ctx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2);
@@ -181,9 +181,9 @@ export function FluidCursor() {
             12
           );
           if (isLanding) {
-            gradient.addColorStop(0, "rgba(232, 168, 56, 0.9)");
-            gradient.addColorStop(0.3, "rgba(240, 188, 90, 0.4)");
-            gradient.addColorStop(1, "rgba(232, 168, 56, 0)");
+            gradient.addColorStop(0, "rgba(121, 217, 222, 0.9)");
+            gradient.addColorStop(0.35, "rgba(110, 219, 179, 0.35)");
+            gradient.addColorStop(1, "rgba(121, 217, 222, 0)");
           } else {
             gradient.addColorStop(0, "rgba(121, 217, 222, 0.9)");
             gradient.addColorStop(0.3, "rgba(110, 219, 179, 0.4)");
@@ -218,7 +218,7 @@ export function FluidCursor() {
   return (
     <canvas
       ref={canvasRef}
-      className="fluid-cursor-canvas"
+      className="fluid-cursor-canvas fixed inset-0 w-screen h-screen pointer-events-none z-[99999]"
       aria-hidden="true"
     />
   );

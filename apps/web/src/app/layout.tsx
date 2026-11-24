@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider, themeInitScript } from "@/components/layout/ThemeProvider";
+import { LocaleProvider } from "@/components/layout/LocaleProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingTelemetryHUD } from "@/components/layout/FloatingTelemetryHUD";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -48,6 +49,7 @@ export default function RootLayout({
       </head>
       <body className="bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased min-h-screen flex flex-col">
         <ThemeProvider>
+        <LocaleProvider>
         <FluidCursor />
         <Navbar />
         <main id="main-content" tabIndex={-1} className="flex-1 w-full pt-20 sm:pt-24 flex flex-col">
@@ -55,6 +57,7 @@ export default function RootLayout({
         </main>
         <FloatingTelemetryHUD />
         <WorkspaceCommandPalette />
+        </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

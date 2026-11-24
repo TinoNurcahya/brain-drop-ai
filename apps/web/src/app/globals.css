@@ -336,8 +336,17 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border-bottom-color: var(--border);
 }
-.site-header.hidden {
+.site-header.nav-hidden {
   transform: translateY(-100%);
+}
+/* Fluid synaptic cursor overlay (must never enter normal document flow) */
+.fluid-cursor-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99999;
 }
 .site-nav { position: relative; width: min(1240px, calc(100% - 96px)); min-height: 80px; margin-inline: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-primary); font-size: 1.2rem; font-weight: 650; letter-spacing: -.055em; text-decoration: none; min-height: 44px; flex-shrink: 0; }

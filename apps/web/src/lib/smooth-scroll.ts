@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 let lenisInstance: Lenis | null = null;
+let tickerCallback: ((time: number) => void) | null = null;
 
 export function initSmoothScroll(): Lenis {
   if (lenisInstance) return lenisInstance;
@@ -15,18 +16,46 @@ export function initSmoothScroll(): Lenis {
     easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     orientation: "vertical",
     smoothWheel: true,
+    anchors: true,
   });
 
   // Sync Lenis with GSAP ScrollTrigger
   lenis.on("scroll", ScrollTrigger.update);
-  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  tickerCallback = (time: number) => lenis.raf(time * 1000);
+  gsap.ticker.add(tickerCallback);
   gsap.ticker.lagSmoothing(0);
 
   lenisInstance = lenis;
   return lenis;
 }
 
+export function scrollToTarget(selector: string) {
+  if (typeof window === "undefined") return;
+  if (lenisInstance) {
+    lenisInstance.scrollTo(selector, { duration: 1.35 });
+    return;
+  }
+  const el = document.querySelector(selector);
+  el?.scrollIntoView({ behavior: "smooth" });
+}
+
+export function scrollToY(y: number) {
+  if (typeof window === "undefined") return;
+  if (lenisInstance) {
+    lenisInstance.scrollTo(y, { duration: 1.2 });
+    return;
+  }
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
 export function destroySmoothScroll() {
-  lenisInstance?.destroy();
-  lenisInstance = null;
+  if (tickerCallback) {
+    gsap.ticker.remove(tickerCallback);
+    tickerCallback = null;
+  }
+  if (lenisInstance) {
+    lenisInstance.off("scroll", ScrollTrigger.update);
+    lenisInstance.destroy();
+    lenisInstance = null;
+  }
 }
