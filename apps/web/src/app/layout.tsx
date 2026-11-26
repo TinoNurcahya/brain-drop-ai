@@ -9,7 +9,7 @@ import { WorkspaceCommandPalette } from "@/components/navigation/WorkspaceComman
 import "./globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#060913",
+  themeColor: "#0f2330",
   width: "device-width",
   initialScale: 1,
 };

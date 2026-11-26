@@ -19,9 +19,11 @@ const MAX_STAGE = 3;
 export function StoryStage({
   copy,
   introReady = true,
+  dark = true,
 }: {
   copy: V2Copy;
   introReady?: boolean;
+  dark?: boolean;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef(0);
@@ -96,7 +98,7 @@ export function StoryStage({
       triggerRef.current = ScrollTrigger.create({
         trigger: el,
         start: "top top",
-        end: isMobile ? "+=1750" : "+=2500",
+        end: isMobile ? "+=1150" : "+=1650",
         pin: true,
         scrub: true,
         onUpdate: (self) => {
@@ -141,7 +143,7 @@ export function StoryStage({
           count={9000}
           mobileCount={1800}
           stageRef={stageRef}
-          dark
+          dark={dark}
           onUnsupported={() => setWebgl(false)}
         />
       ) : (

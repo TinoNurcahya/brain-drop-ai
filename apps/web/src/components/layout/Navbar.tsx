@@ -6,8 +6,6 @@ import { usePathname } from "next/navigation";
 import { Brain, Menu, X, Search, ArrowUpRight } from "lucide-react";
 import { initAppCheck } from "@/lib/firebase";
 import { ThemeToggle } from "./ThemeProvider";
-import { LocaleToggle, useLocale } from "./LocaleProvider";
-import { RollingText } from "@/components/ui/RollingText";
 
 const workspaceLinks = [
   { href: "/capture", label: "Capture" },
@@ -19,11 +17,8 @@ const workspaceLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const { copy } = useLocale();
   const [open, setOpen] = useState(false);
-  const [visible, setVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
-  const lastScroll = useRef(0);
   const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -53,88 +48,18 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const isLanding = pathname === "/";
-
     const onScroll = () => {
-      const current = window.scrollY;
-      setScrolled(current > 60);
-
-      if (isLanding) {
-        if (current < 80) {
-          setVisible(true);
-          lastScroll.current = current;
-          return;
-        }
-        const delta = current - lastScroll.current;
-        if (delta > 5) setVisible(false);
-        else if (delta < -5) setVisible(true);
-        lastScroll.current = current;
-      } else {
-        setVisible(true);
-      }
+      setScrolled(window.scrollY > 60);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [pathname]);
+  }, []);
 
-  // /v2 renders its own header
-  if (pathname === "/v2") return null;
+  // Canonical landing page ("/") renders its own editorial V2Header
+  if (pathname === "/" || pathname === "/v2") return null;
 
-  // Awwwards Editorial Header on Landing Page ("/")
-  if (pathname === "/") {
-    return (
-      <header
-        className={`aw-landing-header ${scrolled ? "is-scrolled" : ""} ${
-          !visible ? "is-hidden" : ""
-        }`}
-      >
-        <a href="#main-content" className="skip-link">
-          Skip to content
-        </a>
-
-        <a
-          href="#canvas-journey"
-          className="aw-wordmark"
-          aria-label="BrainDrop AI, back to top"
-        >
-          <span className="aw-brand-icon" aria-hidden="true">
-            ✳
-          </span>
-          <span className="aw-brand-text">
-            {"braindrop / ai".split("").map((char, i) => (
-              <span
-                key={i}
-                className="aw-brand-char"
-                style={{ "--char-index": i } as React.CSSProperties}
-              >
-                {char === " " ? "\u00A0" : char}
-              </span>
-            ))}
-          </span>
-          <span className="aw-brand-period">.</span>
-        </a>
-
-        <span className="aw-header-description">{copy.header.subtitle}</span>
-
-        <div className="aw-header-actions">
-          <LocaleToggle />
-          <ThemeToggle />
-          <Link href="/notes" className="aw-demo-link group">
-            <RollingText text={copy.header.launchWorkspace} />{" "}
-            <span aria-hidden="true">↗</span>
-          </Link>
-        </div>
-      </header>
-    );
-  }
-
-  // Functional Workspace Header on App Routes
-  const headerClass = [
-    "site-header",
-    scrolled ? "scrolled" : "",
-    !visible ? "nav-hidden" : "",
-  ]
+  const headerClass = ["site-header", scrolled ? "scrolled" : ""]
     .filter(Boolean)
     .join(" ");
 

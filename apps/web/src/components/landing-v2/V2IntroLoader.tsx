@@ -134,8 +134,17 @@ interface V2IntroLoaderProps {
   onComplete?: () => void;
 }
 
+// Plays in full on first page load or hard reload; auto-skips on SPA back-navigation.
+let introPlayedInSessionMemory = false;
+
+export function hasIntroPlayedInMemory(): boolean {
+  return introPlayedInSessionMemory;
+}
+
 export function V2IntroLoader({ caption, onRevealStart, onComplete }: V2IntroLoaderProps) {
-  const [phase, setPhase] = useState<"visible" | "hidden">("visible");
+  const [phase, setPhase] = useState<"visible" | "hidden">(() =>
+    introPlayedInSessionMemory ? "hidden" : "visible"
+  );
   const revealCbRef = useRef(onRevealStart);
   const completeCbRef = useRef(onComplete);
   const completedRef = useRef(false);
@@ -174,15 +183,18 @@ export function V2IntroLoader({ caption, onRevealStart, onComplete }: V2IntroLoa
     const finish = () => {
       if (!active || completedRef.current) return;
       completedRef.current = true;
+      introPlayedInSessionMemory = true;
       setPhase("hidden");
       triggerReveal();
       completeCbRef.current?.();
     };
 
-    if (motionQuery.matches || skipRequested) {
+    if (introPlayedInSessionMemory || motionQuery.matches || skipRequested) {
       finish();
       return;
     }
+
+    introPlayedInSessionMemory = true;
 
     const penTip = penTipRef.current;
     if (penTip) gsap.set(penTip, { opacity: 0 });

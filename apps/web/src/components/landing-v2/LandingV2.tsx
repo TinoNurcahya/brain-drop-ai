@@ -8,20 +8,21 @@ import { useTheme } from "@/components/layout/ThemeProvider";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import { V2_COPY } from "@/lib/landing-v2-copy";
 import { V2_CHAPTERS } from "@/lib/landing-v2-chapters";
-import { V2IntroLoader } from "./V2IntroLoader";
+import { V2IntroLoader, hasIntroPlayedInMemory } from "./V2IntroLoader";
 import { V2Header } from "./V2Header";
 import { ChapterHud } from "./ChapterHud";
 import { StoryStage } from "./StoryStage";
 import { ProductReveal } from "./ProductReveal";
-import { PrivacyPipeline } from "./PrivacyPipeline";
+import { HybridLedgerChapter } from "./HybridLedgerChapter";
 import { ClipperChapter } from "./ClipperChapter";
+import { PrivacyPipeline } from "./PrivacyPipeline";
 import { IndexChapter } from "./IndexChapter";
 import { ClosingChapter } from "./ClosingChapter";
 import "@/styles/landing-v2.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function LandingV2({ homeHref = "/v2" }: { homeHref?: string }) {
+export function LandingV2({ homeHref = "/" }: { homeHref?: string }) {
   useSmoothScroll();
   const { locale } = useLocale();
   const { resolvedTheme } = useTheme();
@@ -29,7 +30,7 @@ export function LandingV2({ homeHref = "/v2" }: { homeHref?: string }) {
   const c = V2_COPY[locale];
   const ch = V2_CHAPTERS[locale];
   const root = useRef<HTMLDivElement>(null);
-  const [introReady, setIntroReady] = useState(false);
+  const [introReady, setIntroReady] = useState(() => hasIntroPlayedInMemory());
 
   const handleRevealStart = useCallback(() => {
     setIntroReady(true);
@@ -79,11 +80,12 @@ export function LandingV2({ homeHref = "/v2" }: { homeHref?: string }) {
       <ChapterHud names={ch.hud} />
 
       <div id="v2-main-stage" className="v2-main-stage">
-        <StoryStage copy={c} introReady={introReady} />
-        <ProductReveal copy={c.product} />
-        <PrivacyPipeline copy={c.why} />
+        <StoryStage copy={c} introReady={introReady} dark={dark} />
+        <ProductReveal copy={c.product} dark={dark} />
+        <HybridLedgerChapter copy={ch.hybrid} />
         <ClipperChapter copy={ch.clipper} />
-        <IndexChapter copy={ch.index} />
+        <PrivacyPipeline copy={c.why} />
+        <IndexChapter copy={ch.index} dark={dark} />
       </div>
 
       <ClosingChapter copy={ch.closing} dark={dark} />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
 
 interface SparkParticle {
   x: number;
@@ -16,8 +15,6 @@ interface SparkParticle {
 
 export function FluidCursor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const pathname = usePathname();
-  const isLanding = pathname === "/" || pathname === "/v2";
 
   useEffect(() => {
     // Disable on touch devices or reduced motion
@@ -44,7 +41,6 @@ export function FluidCursor() {
     };
     window.addEventListener("resize", onResize, { passive: true });
 
-    // Pointer state with smooth spring lerp
     const mouse = {
       x: -100,
       y: -100,
@@ -54,23 +50,24 @@ export function FluidCursor() {
       isHoveringInteractive: false,
     };
 
-    const colors = isLanding
-      ? [
-          "rgba(121, 217, 222, ", // oceanic cyan
-          "rgba(110, 219, 179, ", // emerald
-          "rgba(195, 160, 239, ", // soft purple
-          "rgba(255, 255, 255, ", // crisp spark
-        ]
-      : [
-          "rgba(110, 219, 179, ", // emerald
-          "rgba(121, 217, 222, ", // cyan
-          "rgba(195, 160, 239, ", // violet
-          "rgba(255, 255, 255, ", // white spark
-        ];
+    // Single-accent 60-30-10 compliant particle tones per theme
+    const getSparkPalette = () => {
+      const isLight = document.documentElement.dataset.theme === "light";
+      return isLight
+        ? [
+            "rgba(17, 108, 116, ", // primary deep teal accent
+            "rgba(24, 128, 138, ", // subtle teal derivative
+            "rgba(28, 25, 23, ",   // neutral charcoal ink fleck
+          ]
+        : [
+            "rgba(121, 217, 222, ", // primary oceanic cyan accent
+            "rgba(165, 232, 236, ", // luminous cyan tint
+            "rgba(238, 234, 225, ", // warm chalk ink spark
+          ];
+    };
 
     const particles: SparkParticle[] = [];
-    const maxParticles = 45;
-
+    const maxParticles = 40;
     let lastSparkTime = 0;
 
     const onMouseMove = (e: MouseEvent) => {
@@ -78,31 +75,31 @@ export function FluidCursor() {
       mouse.targetY = e.clientY;
       mouse.visible = true;
 
-      // Check if hovering interactive element
       const target = e.target as HTMLElement | null;
       mouse.isHoveringInteractive = !!(
         target?.closest("button") ||
         target?.closest("a") ||
+        target?.closest("[role='button']") ||
         target?.closest(".interactive-target")
       );
 
-      // Spawn spark particles with distance throttling
       const now = performance.now();
       if (now - lastSparkTime > 24 && particles.length < maxParticles) {
         lastSparkTime = now;
-        const colorBase = colors[Math.floor(Math.random() * colors.length)];
+        const palette = getSparkPalette();
+        const colorBase = palette[Math.floor(Math.random() * palette.length)];
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 1.4 + 0.3;
+        const speed = Math.random() * 1.25 + 0.25;
 
         particles.push({
           x: e.clientX,
           y: e.clientY,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          radius: Math.random() * 2.2 + 1.0,
+          radius: Math.random() * 2.0 + 0.9,
           color: colorBase,
-          alpha: 0.85,
-          decay: Math.random() * 0.025 + 0.015,
+          alpha: 0.78,
+          decay: Math.random() * 0.024 + 0.016,
         });
       }
     };
@@ -114,11 +111,9 @@ export function FluidCursor() {
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     document.addEventListener("mouseleave", onMouseLeave);
 
-    // Animation Loop
     let animationId: number;
 
     const render = () => {
-      // Pause drawing during iris theme transition to grant 100% GPU frame budget to ViewTransition
       if (document.documentElement.getAttribute("data-theme-transition") === "iris") {
         animationId = requestAnimationFrame(render);
         return;
@@ -126,11 +121,9 @@ export function FluidCursor() {
       animationId = requestAnimationFrame(render);
       ctx.clearRect(0, 0, width, height);
 
-      // Lerp mouse
       mouse.x += (mouse.targetX - mouse.x) * 0.22;
       mouse.y += (mouse.targetY - mouse.y) * 0.22;
 
-      // Render Synaptic Spark Trail
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
@@ -150,54 +143,52 @@ export function FluidCursor() {
         ctx.restore();
       }
 
-      // Render Magnetic Pointer Core
       if (mouse.visible) {
+        const isLight = document.documentElement.dataset.theme === "light";
         ctx.save();
 
         if (mouse.isHoveringInteractive) {
-          // Expanded magnetic aura
-          ctx.strokeStyle = isLanding
-            ? "rgba(121, 217, 222, 0.78)"
-            : "rgba(121, 217, 222, 0.75)";
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = isLight
+            ? "rgba(17, 108, 116, 0.72)"
+            : "rgba(121, 217, 222, 0.78)";
+          ctx.lineWidth = 1.35;
           ctx.beginPath();
-          ctx.arc(mouse.x, mouse.y, 18, 0, Math.PI * 2);
+          ctx.arc(mouse.x, mouse.y, 17, 0, Math.PI * 2);
           ctx.stroke();
 
-          ctx.fillStyle = isLanding
-            ? "rgba(110, 219, 179, 0.92)"
-            : "rgba(110, 219, 179, 0.9)";
+          ctx.fillStyle = isLight
+            ? "rgba(17, 108, 116, 0.9)"
+            : "rgba(121, 217, 222, 0.92)";
           ctx.beginPath();
-          ctx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2);
+          ctx.arc(mouse.x, mouse.y, 3.5, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          // Subtle precise dot with soft halo
           const gradient = ctx.createRadialGradient(
             mouse.x,
             mouse.y,
             0,
             mouse.x,
             mouse.y,
-            12
+            11
           );
-          if (isLanding) {
-            gradient.addColorStop(0, "rgba(121, 217, 222, 0.9)");
-            gradient.addColorStop(0.35, "rgba(110, 219, 179, 0.35)");
-            gradient.addColorStop(1, "rgba(121, 217, 222, 0)");
+          if (isLight) {
+            gradient.addColorStop(0, "rgba(17, 108, 116, 0.65)");
+            gradient.addColorStop(0.4, "rgba(17, 108, 116, 0.2)");
+            gradient.addColorStop(1, "rgba(17, 108, 116, 0)");
           } else {
-            gradient.addColorStop(0, "rgba(121, 217, 222, 0.9)");
-            gradient.addColorStop(0.3, "rgba(110, 219, 179, 0.4)");
+            gradient.addColorStop(0, "rgba(121, 217, 222, 0.85)");
+            gradient.addColorStop(0.4, "rgba(121, 217, 222, 0.28)");
             gradient.addColorStop(1, "rgba(121, 217, 222, 0)");
           }
 
           ctx.fillStyle = gradient;
           ctx.beginPath();
-          ctx.arc(mouse.x, mouse.y, 12, 0, Math.PI * 2);
+          ctx.arc(mouse.x, mouse.y, 11, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = isLight ? "#1c1917" : "#eeeae1";
           ctx.beginPath();
-          ctx.arc(mouse.x, mouse.y, 2.5, 0, Math.PI * 2);
+          ctx.arc(mouse.x, mouse.y, 2.2, 0, Math.PI * 2);
           ctx.fill();
         }
 

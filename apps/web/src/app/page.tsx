@@ -1,8 +1,5 @@
-"use client";
-
-import { SpatialCanvasJourney } from "@/components/landing/SpatialCanvasJourney";
+import { LandingV2 } from "@/components/landing-v2/LandingV2";
 
 export default function LandingPage() {
-  return <SpatialCanvasJourney />;
+  return <LandingV2 homeHref="/" />;
 }
-
