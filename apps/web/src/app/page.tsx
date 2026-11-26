@@ -1,5 +1,5 @@
-import { LandingV2 } from "@/components/landing-v2/LandingV2";
+import { EditorialLanding } from "@/components/landing/EditorialLanding";
 
 export default function LandingPage() {
-  return <LandingV2 homeHref="/" />;
+  return <EditorialLanding homeHref="/" />;
 }

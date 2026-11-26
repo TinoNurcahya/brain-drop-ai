@@ -7,19 +7,19 @@ import { useLocale } from "@/components/layout/LocaleProvider";
 import { ThemeToggle } from "@/components/layout/ThemeProvider";
 import { RollingText } from "@/components/ui/RollingText";
 import { scrollToTarget } from "@/lib/smooth-scroll";
-import { V2_COPY } from "@/lib/landing-v2-copy";
+import { LANDING_COPY } from "@/lib/landing-copy";
 
 const WORDMARK = "BrainDrop";
 
-export function V2Header({
-  homeHref = "/v2",
+export function LandingHeader({
+  homeHref = "/",
   introReady = true,
 }: {
   homeHref?: string;
   introReady?: boolean;
 }) {
   const { locale, toggleLocale } = useLocale();
-  const c = V2_COPY[locale];
+  const c = LANDING_COPY[locale];
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [surface, setSurface] = useState<"ink" | "paper">("ink");
@@ -52,16 +52,16 @@ export function V2Header({
 
       // Detect active chapter surface behind header (respecting sticky closing curtain).
       const probeY = 44;
-      const mainStage = document.getElementById("v2-main-stage");
+      const mainStage = document.getElementById("landing-main-stage");
       let activeSurface: "ink" | "paper" = "ink";
       if (mainStage && mainStage.getBoundingClientRect().bottom <= probeY) {
         activeSurface = "ink";
       } else {
-        const sections = document.querySelectorAll<HTMLElement>("#v2-main-stage [data-v2-surface]");
+        const sections = document.querySelectorAll<HTMLElement>("#landing-main-stage [data-surface]");
         sections.forEach((sec) => {
           const rect = sec.getBoundingClientRect();
           if (rect.top <= probeY && rect.bottom > probeY) {
-            activeSurface = sec.dataset.v2Surface === "paper" ? "paper" : "ink";
+            activeSurface = sec.dataset.surface === "paper" ? "paper" : "ink";
           }
         });
       }
@@ -83,53 +83,53 @@ export function V2Header({
 
   return (
     <header
-      className={`v2-header v2-header-${surface} ${scrolled ? "is-scrolled" : ""} ${
+      className={`lp-header lp-header-${surface} ${scrolled ? "is-scrolled" : ""} ${
         hidden ? "is-hidden" : ""
       } ${introPlayed ? "is-intro" : ""}`}
     >
-      <Link href={homeHref} className="v2-logo" aria-label="BrainDrop">
-        <span className="v2-brand-text" aria-hidden="true">
+      <Link href={homeHref} className="lp-logo" aria-label="BrainDrop">
+        <span className="lp-brand-text" aria-hidden="true">
           {WORDMARK.split("").map((ch, idx) => (
             <span
               key={idx}
-              className="v2-brand-char"
+              className="lp-brand-char"
               style={{ ["--char-index" as string]: idx }}
             >
               {ch}
             </span>
           ))}
-          <span className="v2-brand-period">.</span>
+          <span className="lp-brand-period">.</span>
         </span>
       </Link>
 
-      <nav className="v2-header-nav" aria-label="Section navigation">
+      <nav className="lp-header-nav" aria-label="Section navigation">
         {c.nav.links.map((item) => (
           <button
             key={item.target}
             type="button"
             onClick={() => scrollToTarget(item.target)}
-            className="v2-nav-link"
+            className="lp-nav-link"
           >
             {item.label}
           </button>
         ))}
       </nav>
 
-      <div className="v2-header-actions">
+      <div className="lp-header-actions">
         <button
           type="button"
-          className="v2-lang-btn"
+          className="lp-lang-btn"
           onClick={toggleLocale}
           aria-label={c.nav.language}
         >
           {locale === "en" ? "EN" : "ID"}
         </button>
 
-        <div className="v2-theme-wrap">
+        <div className="lp-theme-wrap">
           <ThemeToggle />
         </div>
 
-        <Link href="/notes" className="group v2-demo-link" data-magnetic>
+        <Link href="/notes" className="group lp-demo-link" data-magnetic>
           <RollingText text={c.nav.cta} />
           <ArrowUpRight size={14} aria-hidden="true" />
         </Link>

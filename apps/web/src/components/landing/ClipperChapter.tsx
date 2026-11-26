@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { ArrowUpRight } from "lucide-react";
 import { RollingText } from "@/components/ui/RollingText";
-import type { ChaptersCopy } from "@/lib/landing-v2-chapters";
+import type { ChaptersCopy } from "@/lib/landing-chapters";
 import { scrollToY } from "@/lib/smooth-scroll";
 
 gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
@@ -231,85 +231,85 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
 
   return (
     <section
-      id="v2-clipper"
+      id="clipper"
       ref={sectionRef}
-      data-v2-surface="paper"
-      className="v2-board v2-paper"
+      data-surface="paper"
+      className="lp-board lp-paper"
       aria-label={copy.title}
     >
       {/* Top minimal editorial chrome */}
-      <header className="v2-board-head">
+      <header className="lp-board-head">
         <div>
-          <h2 className="v2-board-title">{copy.title}</h2>
-          <p className="v2-board-hint">{copy.hint}</p>
+          <h2 className="lp-board-title">{copy.title}</h2>
+          <p className="lp-board-hint">{copy.hint}</p>
         </div>
 
-        <div className="v2-board-controls">
-          <div className="v2-board-stops" role="tablist" aria-label="Research thread stations">
+        <div className="lp-board-controls">
+          <div className="lp-board-stops" role="tablist" aria-label="Research thread stations">
             {copy.stations.map((st, idx) => (
               <button
                 key={st.step}
                 type="button"
                 role="tab"
                 aria-selected={activeStation === idx}
-                className={`v2-board-stop ${activeStation === idx ? "is-active" : ""}`}
+                className={`lp-board-stop ${activeStation === idx ? "is-active" : ""}`}
                 onClick={() => jumpStation(idx)}
               >
                 <span>{st.step}</span>
               </button>
             ))}
           </div>
-          <span ref={coordRef} className="v2-board-coord" aria-hidden="true">
+          <span ref={coordRef} className="lp-board-coord" aria-hidden="true">
             x 0420 · y 0420
           </span>
         </div>
       </header>
 
       {/* Desktop: 2D Spatial Camera-Pan Editorial Sheet */}
-      <div ref={viewportRef} className="v2-board-viewport">
-        <div ref={rigRef} className="v2-board-rig">
-          <div className="v2-board-dots" aria-hidden="true" />
+      <div ref={viewportRef} className="lp-board-viewport">
+        <div ref={rigRef} className="lp-board-rig">
+          <div className="lp-board-dots" aria-hidden="true" />
 
           {/* Sweeping Single-Accent Cubic Bézier Thread */}
           <svg
-            className="v2-board-svg"
+            className="lp-board-svg"
             viewBox="0 0 3900 1560"
             width="3900"
             height="1560"
             aria-hidden="true"
           >
-            <path d={THREAD_PATH} className="v2-thread-ghost" />
-            <path ref={crossRef} d={CROSS_REF_PATH} className="v2-thread-cross" />
-            <path ref={threadRef} d={THREAD_PATH} className="v2-thread-live" />
+            <path d={THREAD_PATH} className="lp-thread-ghost" />
+            <path ref={crossRef} d={CROSS_REF_PATH} className="lp-thread-cross" />
+            <path ref={threadRef} d={THREAD_PATH} className="lp-thread-live" />
 
             {PINS.map((pin, idx) => (
               <g
                 key={idx}
                 transform={`translate(${pin.x}, ${pin.y})`}
-                className={`v2-pin-node ${activeStation === idx ? "is-active" : activeStation > idx ? "is-done" : ""}`}
+                className={`lp-pin-node ${activeStation === idx ? "is-active" : activeStation > idx ? "is-done" : ""}`}
               >
-                <circle r="16" className="v2-pin-ring" />
-                <line x1="-22" y1="0" x2="-10" y2="0" className="v2-pin-tick" />
-                <line x1="10" y1="0" x2="22" y2="0" className="v2-pin-tick" />
-                <line x1="0" y1="-22" x2="0" y2="-10" className="v2-pin-tick" />
-                <line x1="0" y1="10" x2="0" y2="22" className="v2-pin-tick" />
-                <circle r="4" className="v2-pin-core" />
+                <circle r="16" className="lp-pin-ring" />
+                <line x1="-22" y1="0" x2="-10" y2="0" className="lp-pin-tick" />
+                <line x1="10" y1="0" x2="22" y2="0" className="lp-pin-tick" />
+                <line x1="0" y1="-22" x2="0" y2="-10" className="lp-pin-tick" />
+                <line x1="0" y1="10" x2="0" y2="22" className="lp-pin-tick" />
+                <circle r="4" className="lp-pin-core" />
               </g>
             ))}
 
-            <circle ref={haloRef} cx={PINS[0].x} cy={PINS[0].y} r="13" className="v2-thread-halo" />
-            <circle ref={beadRef} cx={PINS[0].x} cy={PINS[0].y} r="4.5" className="v2-thread-bead" />
+            <circle ref={haloRef} cx={PINS[0].x} cy={PINS[0].y} r="13" className="lp-thread-halo" />
+            <circle ref={beadRef} cx={PINS[0].x} cy={PINS[0].y} r="4.5" className="lp-thread-bead" />
           </svg>
 
           {/* STATION 01: Highlight / Clip from page */}
           <article
-            className={`v2-station ${activeStation === 0 ? "is-active" : ""}`}
+            className={`lp-station ${activeStation === 0 ? "is-active" : ""}`}
             style={{ left: PINS[0].x + 34, top: PINS[0].y + 18, width: 610 }}
           >
-            <span className="v2-station-meta">
+            <span className="lp-station-meta">
               <b>{copy.stations[0].step}</b> {copy.stations[0].label}
             </span>
-            <p className="v2-station-quote" onMouseUp={handleSelectClip} onTouchEnd={handleSelectClip}>
+            <p className="lp-station-quote" onMouseUp={handleSelectClip} onTouchEnd={handleSelectClip}>
               {copy.sentences.map((s, i) => (
                 <span
                   key={i}
@@ -318,7 +318,7 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
                   }}
                   role="button"
                   tabIndex={0}
-                  className={`v2-clip-s ${i < litCount ? "is-lit" : ""}`}
+                  className={`lp-clip-s ${i < litCount ? "is-lit" : ""}`}
                   onClick={() => clipSentence(i)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -331,37 +331,37 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
                 </span>
               ))}
             </p>
-            <span className="v2-station-foot">{copy.sourceUrl}</span>
+            <span className="lp-station-foot">{copy.sourceUrl}</span>
           </article>
 
           {/* STATION 02: Instant On-Device Nano Auto-Tag & Summary (~38ms) */}
           <article
-            className={`v2-station ${activeStation === 1 ? "is-active" : ""}`}
+            className={`lp-station ${activeStation === 1 ? "is-active" : ""}`}
             style={{ left: PINS[1].x + 34, top: PINS[1].y + 18, width: 590 }}
           >
-            <span className="v2-station-meta">
+            <span className="lp-station-meta">
               <b>{copy.stations[1].step}</b> {copy.stations[1].label}
             </span>
-            <h3 className="v2-station-heading">{copy.triage.heading}</h3>
-            <p className="v2-station-summary">{activeSummary}</p>
-            <div className="v2-station-tags">
+            <h3 className="lp-station-heading">{copy.triage.heading}</h3>
+            <p className="lp-station-summary">{activeSummary}</p>
+            <div className="lp-station-tags">
               {activeTags.map((tag) => (
                 <span key={tag}>{tag}</span>
               ))}
             </div>
-            <span className="v2-station-foot">{copy.triage.runtime}</span>
+            <span className="lp-station-foot">{copy.triage.runtime}</span>
           </article>
 
           {/* STATION 03: Local semantic links in browser memory */}
           <article
-            className={`v2-station ${activeStation === 2 ? "is-active" : ""}`}
+            className={`lp-station ${activeStation === 2 ? "is-active" : ""}`}
             style={{ left: PINS[2].x + 34, top: PINS[2].y + 18, width: 580 }}
           >
-            <span className="v2-station-meta">
+            <span className="lp-station-meta">
               <b>{copy.stations[2].step}</b> {copy.stations[2].label}
             </span>
-            <h3 className="v2-station-heading">{copy.connect.anchor}</h3>
-            <ul className="v2-station-links">
+            <h3 className="lp-station-heading">{copy.connect.anchor}</h3>
+            <ul className="lp-station-links">
               {copy.connect.links.map((lnk) => (
                 <li key={lnk.title}>
                   <span>{lnk.title}</span>
@@ -369,51 +369,51 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
                 </li>
               ))}
             </ul>
-            <span className="v2-station-foot">{copy.connect.runtime}</span>
+            <span className="lp-station-foot">{copy.connect.runtime}</span>
           </article>
 
           {/* STATION 04: Spaced recall before it fades */}
           <article
-            className={`v2-station ${activeStation === 3 ? "is-active" : ""}`}
+            className={`lp-station ${activeStation === 3 ? "is-active" : ""}`}
             style={{ left: PINS[3].x + 34, top: PINS[3].y + 18, width: 560 }}
           >
-            <span className="v2-station-meta">
+            <span className="lp-station-meta">
               <b>{copy.stations[3].step}</b> {copy.stations[3].label}
             </span>
-            <h3 className="v2-station-heading">{copy.recall.question}</h3>
-            <div className="v2-station-recall-actions">
+            <h3 className="lp-station-heading">{copy.recall.question}</h3>
+            <div className="lp-station-recall-actions">
               <button
                 type="button"
-                className="v2-tlink is-active"
+                className="lp-tlink is-active"
                 onClick={() => setAnswerOpen((v) => !v)}
               >
                 {answerOpen ? copy.recall.hideLabel : copy.recall.revealLabel}
               </button>
-              <Link href="/capture" className="group v2-sx-open">
+              <Link href="/capture" className="group lp-sx-open">
                 <RollingText text={copy.recall.openCapture} />
                 <ArrowUpRight size={13} aria-hidden="true" />
               </Link>
             </div>
-            {answerOpen && <p className="v2-station-answer">{copy.recall.answer}</p>}
-            <span className="v2-station-foot">{copy.recall.cadence}</span>
+            {answerOpen && <p className="lp-station-answer">{copy.recall.answer}</p>}
+            <span className="lp-station-foot">{copy.recall.cadence}</span>
           </article>
         </div>
       </div>
 
       {/* Mobile / Reduced-motion clean vertical thread stack */}
-      <div className="v2-board-mobile">
-        <div className="v2-m-thread-item">
-          <span className="v2-m-pin" aria-hidden="true" />
-          <span className="v2-station-meta">
+      <div className="lp-board-mobile">
+        <div className="lp-m-thread-item">
+          <span className="lp-m-pin" aria-hidden="true" />
+          <span className="lp-station-meta">
             <b>{copy.stations[0].step}</b> {copy.stations[0].label}
           </span>
-          <p className="v2-station-quote" onMouseUp={handleSelectClip} onTouchEnd={handleSelectClip}>
+          <p className="lp-station-quote" onMouseUp={handleSelectClip} onTouchEnd={handleSelectClip}>
             {copy.sentences.map((s, i) => (
               <span
                 key={i}
                 role="button"
                 tabIndex={0}
-                className="v2-clip-s is-lit"
+                className="lp-clip-s is-lit"
                 onClick={() => saveClip(s, i === 0 ? 0 : 1)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -428,28 +428,28 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
           </p>
         </div>
 
-        <div className="v2-m-thread-item">
-          <span className="v2-m-pin" aria-hidden="true" />
-          <span className="v2-station-meta">
+        <div className="lp-m-thread-item">
+          <span className="lp-m-pin" aria-hidden="true" />
+          <span className="lp-station-meta">
             <b>{copy.stations[1].step}</b> {copy.stations[1].label}
           </span>
-          <h3 className="v2-station-heading">{copy.triage.heading}</h3>
-          <p className="v2-station-summary">{activeSummary}</p>
-          <div className="v2-station-tags">
+          <h3 className="lp-station-heading">{copy.triage.heading}</h3>
+          <p className="lp-station-summary">{activeSummary}</p>
+          <div className="lp-station-tags">
             {activeTags.map((tag) => (
               <span key={tag}>{tag}</span>
             ))}
           </div>
-          <span className="v2-station-foot">{copy.triage.runtime}</span>
+          <span className="lp-station-foot">{copy.triage.runtime}</span>
         </div>
 
-        <div className="v2-m-thread-item">
-          <span className="v2-m-pin" aria-hidden="true" />
-          <span className="v2-station-meta">
+        <div className="lp-m-thread-item">
+          <span className="lp-m-pin" aria-hidden="true" />
+          <span className="lp-station-meta">
             <b>{copy.stations[2].step}</b> {copy.stations[2].label}
           </span>
-          <h3 className="v2-station-heading">{copy.connect.anchor}</h3>
-          <ul className="v2-station-links">
+          <h3 className="lp-station-heading">{copy.connect.anchor}</h3>
+          <ul className="lp-station-links">
             {copy.connect.links.map((lnk) => (
               <li key={lnk.title}>
                 <span>{lnk.title}</span>
@@ -459,35 +459,35 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
           </ul>
         </div>
 
-        <div className="v2-m-thread-item">
-          <span className="v2-m-pin" aria-hidden="true" />
-          <span className="v2-station-meta">
+        <div className="lp-m-thread-item">
+          <span className="lp-m-pin" aria-hidden="true" />
+          <span className="lp-station-meta">
             <b>{copy.stations[3].step}</b> {copy.stations[3].label}
           </span>
-          <h3 className="v2-station-heading">{copy.recall.question}</h3>
-          <p className="v2-station-answer">{copy.recall.answer}</p>
-          <span className="v2-station-foot">{copy.recall.cadence}</span>
+          <h3 className="lp-station-heading">{copy.recall.question}</h3>
+          <p className="lp-station-answer">{copy.recall.answer}</p>
+          <span className="lp-station-foot">{copy.recall.cadence}</span>
         </div>
       </div>
 
       {/* Persistent bottom vault receipt + Chrome extension download */}
-      <div className="v2-clip-foot">
-        <div className="v2-vault" aria-live="polite">
+      <div className="lp-clip-foot">
+        <div className="lp-vault" aria-live="polite">
           {clip ? (
-            <p key={clip.n} className="v2-vault-line">
-              <span className="v2-vault-label">
+            <p key={clip.n} className="lp-vault-line">
+              <span className="lp-vault-label">
                 {String(clip.n).padStart(2, "0")} · {copy.vaultSaved}
               </span>
-              <span className="v2-vault-quote">“{trunc(clip.text)}”</span>
-              <span className="v2-vault-meta">
+              <span className="lp-vault-quote">“{trunc(clip.text)}”</span>
+              <span className="lp-vault-meta">
                 {copy.source} · {clip.time} · {copy.tags.map((t) => `#${t}`).join(" ")}
               </span>
             </p>
           ) : (
-            <p className="v2-vault-empty">{copy.vaultEmpty}</p>
+            <p className="lp-vault-empty">{copy.vaultEmpty}</p>
           )}
         </div>
-        <a href="/braindrop-extension.zip" download className="group v2-ulink">
+        <a href="/braindrop-extension.zip" download className="group lp-ulink">
           <RollingText text={copy.download} />
         </a>
       </div>

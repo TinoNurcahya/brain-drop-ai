@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import type { V2Copy } from "@/lib/landing-v2-copy";
+import type { LandingCopy } from "@/lib/landing-copy";
 import { scrollToY } from "@/lib/smooth-scroll";
 import { WorkspaceScenes } from "./WorkspaceScenes";
 import { SplitLines } from "./SplitLines";
@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const INTRO = 0.08;
 
-export function ProductReveal({ copy }: { copy: V2Copy["product"]; dark?: boolean }) {
+export function ProductReveal({ copy }: { copy: LandingCopy["product"]; dark?: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -31,7 +31,7 @@ export function ProductReveal({ copy }: { copy: V2Copy["product"]; dark?: boolea
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        ".v2-pr-title .v2-word",
+        ".lp-pr-title .lp-word",
         { yPercent: 115 },
         {
           yPercent: 0,
@@ -94,19 +94,19 @@ export function ProductReveal({ copy }: { copy: V2Copy["product"]; dark?: boolea
 
   return (
     <section
-      id="v2-workspace"
+      id="workspace"
       ref={sectionRef}
-      data-v2-surface="paper"
-      className={`v2-pr v2-paper ${reduced ? "is-static" : ""}`}
+      data-surface="paper"
+      className={`lp-pr lp-paper ${reduced ? "is-static" : ""}`}
       aria-label={copy.title}
     >
-      <div className="v2-pr-copy">
-        <h2 className="v2-h2 v2-pr-title" aria-label={copy.title}>
+      <div className="lp-pr-copy">
+        <h2 className="lp-h2 lp-pr-title" aria-label={copy.title}>
           <SplitLines lines={[copy.title]} />
         </h2>
-        <p className="v2-pr-sub">{copy.sub}</p>
+        <p className="lp-pr-sub">{copy.sub}</p>
 
-        <div className="v2-pr-list" role="tablist">
+        <div className="lp-pr-list" role="tablist">
           {copy.tabs.map((t, i) => (
             <button
               key={t.id}
@@ -116,15 +116,15 @@ export function ProductReveal({ copy }: { copy: V2Copy["product"]; dark?: boolea
               type="button"
               role="tab"
               aria-selected={i === active}
-              className={`v2-pr-item ${i === active ? "is-active" : i < active ? "is-done" : ""}`}
+              className={`lp-pr-item ${i === active ? "is-active" : i < active ? "is-done" : ""}`}
               onClick={() => select(i)}
             >
-              <span className="v2-pr-bar" aria-hidden="true" />
-              <span className="v2-pr-item-head">
-                <span className="v2-num">0{i + 1}</span>
-                <span className="v2-pr-item-name">{t.name}</span>
+              <span className="lp-pr-bar" aria-hidden="true" />
+              <span className="lp-pr-item-head">
+                <span className="lp-num">0{i + 1}</span>
+                <span className="lp-pr-item-name">{t.name}</span>
               </span>
-              <span className="v2-pr-item-body">
+              <span className="lp-pr-item-body">
                 <span>{t.caption}</span>
               </span>
             </button>
@@ -132,8 +132,8 @@ export function ProductReveal({ copy }: { copy: V2Copy["product"]; dark?: boolea
         </div>
       </div>
 
-      <div className="v2-pr-visual">
-        <div ref={plateRef} className="v2-pr-stage-wrap">
+      <div className="lp-pr-visual">
+        <div ref={plateRef} className="lp-pr-stage-wrap">
           <WorkspaceScenes activeIndex={active} copy={copy} />
         </div>
       </div>

@@ -128,7 +128,7 @@ function measureHole(svgEl: SVGSVGElement | null, anchorEl: SVGElement | null) {
   return { cx, cy, rx, ry, maxRadius, vw, vh };
 }
 
-interface V2IntroLoaderProps {
+interface IntroLoaderProps {
   caption: string;
   onRevealStart?: () => void;
   onComplete?: () => void;
@@ -141,7 +141,7 @@ export function hasIntroPlayedInMemory(): boolean {
   return introPlayedInSessionMemory;
 }
 
-export function V2IntroLoader({ caption, onRevealStart, onComplete }: V2IntroLoaderProps) {
+export function IntroLoader({ caption, onRevealStart, onComplete }: IntroLoaderProps) {
   const [phase, setPhase] = useState<"visible" | "hidden">(() =>
     introPlayedInSessionMemory ? "hidden" : "visible"
   );
@@ -371,21 +371,21 @@ export function V2IntroLoader({ caption, onRevealStart, onComplete }: V2IntroLoa
   return (
     <div
       ref={containerRef}
-      data-v2-intro-loader
-      className="v2-intro"
+      data-intro-loader
+      className="lp-intro"
       aria-hidden="true"
     >
-      <div className="v2-intro-inner">
-        <svg ref={svgRef} viewBox="52 48 350 92" className="v2-intro-svg">
+      <div className="lp-intro-inner">
+        <svg ref={svgRef} viewBox="52 48 350 92" className="lp-intro-svg">
           <defs>
-            <filter id="v2-pen-aura" x="-100%" y="-100%" width="300%" height="300%">
+            <filter id="lp-pen-aura" x="-100%" y="-100%" width="300%" height="300%">
               <feGaussianBlur stdDeviation="1.8" result="glow" />
               <feMerge>
                 <feMergeNode in="glow" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            <filter id="v2-ink-bleed" x="-20%" y="-20%" width="140%" height="140%">
+            <filter id="lp-ink-bleed" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur in="SourceGraphic" stdDeviation="0.4" result="blur" />
               <feColorMatrix
                 in="blur"
@@ -421,7 +421,7 @@ export function V2IntroLoader({ caption, onRevealStart, onComplete }: V2IntroLoa
               d={item.d}
               fill="currentColor"
               stroke="none"
-              filter="url(#v2-ink-bleed)"
+              filter="url(#lp-ink-bleed)"
             />
           ))}
 
@@ -441,13 +441,13 @@ export function V2IntroLoader({ caption, onRevealStart, onComplete }: V2IntroLoa
           ))}
 
           <g ref={penTipRef} style={{ willChange: "transform, opacity", pointerEvents: "none" }}>
-            <circle r="4.8" fill="var(--v2-acc)" opacity="0.32" filter="url(#v2-pen-aura)" />
+            <circle r="4.8" fill="var(--lp-acc)" opacity="0.32" filter="url(#lp-pen-aura)" />
             <circle r="2.2" fill="currentColor" opacity="0.92" />
             <circle cx="-0.6" cy="-0.6" r="0.7" fill="var(--bg-primary)" opacity="0.88" />
           </g>
         </svg>
 
-        <p ref={captionRef} className="v2-intro-caption">
+        <p ref={captionRef} className="lp-intro-caption">
           {caption}
         </p>
       </div>
