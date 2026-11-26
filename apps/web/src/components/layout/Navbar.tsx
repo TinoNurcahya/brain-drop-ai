@@ -56,8 +56,8 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Canonical landing page ("/") renders its own editorial V2Header
-  if (pathname === "/" || pathname === "/v2") return null;
+  // Canonical landing page ("/") renders its own editorial LandingHeader
+  if (pathname === "/") return null;
 
   const headerClass = ["site-header", scrolled ? "scrolled" : ""]
     .filter(Boolean)
