@@ -1,9 +1,5 @@
-import { LandingV2 } from "@/components/landing-v2/LandingV2";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "BrainDrop AI — Your Second Brain, On-Device",
-};
-
-export default function LandingV2Page() {
-  return <LandingV2 />;
+export default function LegacyLandingV2Redirect() {
+  redirect("/");
 }
