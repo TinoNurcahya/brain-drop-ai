@@ -138,8 +138,9 @@ export const V2_COPY: Record<Locale, V2Copy> = {
       links: [
         { label: "Story", target: "#v2-story" },
         { label: "Workspace", target: "#v2-workspace" },
-        { label: "Privacy", target: "#v2-privacy" },
+        { label: "Hybrid", target: "#v2-hybrid" },
         { label: "Clipper", target: "#v2-clipper" },
+        { label: "Privacy", target: "#v2-privacy" },
         { label: "Index", target: "#v2-index" },
       ],
       cta: "Open workspace",
@@ -422,8 +423,9 @@ export const V2_COPY: Record<Locale, V2Copy> = {
       links: [
         { label: "Cerita", target: "#v2-story" },
         { label: "Workspace", target: "#v2-workspace" },
-        { label: "Privasi", target: "#v2-privacy" },
+        { label: "Hibrida", target: "#v2-hybrid" },
         { label: "Clipper", target: "#v2-clipper" },
+        { label: "Privasi", target: "#v2-privacy" },
         { label: "Index", target: "#v2-index" },
       ],
       cta: "Buka workspace",

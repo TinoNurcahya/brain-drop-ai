@@ -48,7 +48,7 @@ export function ProductReveal({ copy }: { copy: V2Copy["product"]; dark?: boolea
         scrollTrigger: {
           trigger: el,
           start: "top top",
-          end: "+=1750",
+          end: "+=1200",
           pin: true,
           scrub: true,
           onUpdate: (self) => {

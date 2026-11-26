@@ -13,8 +13,14 @@ import { textShape } from "./shapes";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Closing: sticky curtain reveal on paper with magnetic CTA, colophon, and particle wordmark. */
-export function ClosingChapter({ copy, dark }: { copy: ChaptersCopy["closing"]; dark: boolean }) {
+/** Closing: sticky curtain reveal on deep ink with magnetic CTA, colophon, and luminous particle wordmark. */
+export function ClosingChapter({
+  copy,
+  dark = true,
+}: {
+  copy: ChaptersCopy["closing"];
+  dark?: boolean;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef(0);
   const [webgl, setWebgl] = useState(true);
@@ -68,8 +74,8 @@ export function ClosingChapter({ copy, dark }: { copy: ChaptersCopy["closing"]; 
     <footer
       id="v2-closing"
       ref={sectionRef}
-      data-v2-surface="paper"
-      className="v2-closing v2-paper"
+      data-v2-surface="ink"
+      className="v2-closing v2-ink"
     >
       <div className="v2-closing-top">
         <Link href={copy.ctaHref} className="group v2-closing-cta" data-magnetic>

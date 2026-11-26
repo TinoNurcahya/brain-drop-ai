@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { scrollToTarget, scrollToY } from "@/lib/smooth-scroll";
 
-const IDS = ["v2-story", "v2-workspace", "v2-privacy", "v2-clipper", "v2-index", "v2-closing"];
+const IDS = [
+  "v2-story",
+  "v2-workspace",
+  "v2-hybrid",
+  "v2-clipper",
+  "v2-privacy",
+  "v2-index",
+  "v2-closing",
+];
 
 /** Quiet right-edge dot index (LifeMemory-inspired) + 1.5px total scroll hairline. */
 export function ChapterHud({ names }: { names: string[] }) {
@@ -19,8 +27,8 @@ export function ChapterHud({ names }: { names: string[] }) {
       let cur = 0;
       let curSurface: "ink" | "paper" = "ink";
 
-      // Evaluate chapters 0..4 inside the main stage.
-      for (let i = 0; i < 5; i++) {
+      // Evaluate chapters 0..5 inside the main stage.
+      for (let i = 0; i < IDS.length - 1; i++) {
         const el = document.getElementById(IDS[i]);
         if (el && el.getBoundingClientRect().top <= mid) {
           cur = i;
@@ -28,11 +36,11 @@ export function ChapterHud({ names }: { names: string[] }) {
         }
       }
 
-      // Evaluate sticky-curtain closing chapter via mainStage bottom exit.
+      // Evaluate sticky-curtain closing chapter (ink) via mainStage bottom exit.
       const mainStage = document.getElementById("v2-main-stage");
       if (mainStage && mainStage.getBoundingClientRect().bottom <= mid) {
-        cur = 5;
-        curSurface = "paper";
+        cur = IDS.length - 1;
+        curSurface = "ink";
       }
 
       setActive((prev) => (prev === cur ? prev : cur));
@@ -57,7 +65,7 @@ export function ChapterHud({ names }: { names: string[] }) {
   }, []);
 
   const handleJump = (i: number) => {
-    if (i === 5) {
+    if (i === IDS.length - 1) {
       scrollToY(document.documentElement.scrollHeight - window.innerHeight);
       return;
     }

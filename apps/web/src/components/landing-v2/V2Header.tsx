@@ -55,7 +55,7 @@ export function V2Header({
       const mainStage = document.getElementById("v2-main-stage");
       let activeSurface: "ink" | "paper" = "ink";
       if (mainStage && mainStage.getBoundingClientRect().bottom <= probeY) {
-        activeSurface = "paper";
+        activeSurface = "ink";
       } else {
         const sections = document.querySelectorAll<HTMLElement>("#v2-main-stage [data-v2-surface]");
         sections.forEach((sec) => {

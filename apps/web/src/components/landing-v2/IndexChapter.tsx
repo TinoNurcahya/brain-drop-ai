@@ -13,10 +13,17 @@ gsap.registerPlugin(ScrollTrigger);
 
 const IDLE = 5;
 
-/** Five giant titles on the left; the particle field on the right morphs to the hovered module. */
-export function IndexChapter({ copy }: { copy: ChaptersCopy["index"] }) {
+/** Five giant editorial titles on the left; MorphField + 16:9 clip-path Hover Image Preview on the right. */
+export function IndexChapter({ copy, dark }: { copy: ChaptersCopy["index"]; dark: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<number | null>(null);
+  const [lastActive, setLastActive] = useState<number>(0);
+
+  const handleActivate = (idx: number) => {
+    setActive(idx);
+    setLastActive(idx);
+  };
 
   const buildShapes = useCallback((n: number, isMobile: boolean, halfW: number) => {
     const scale = isMobile ? 0.48 : Math.min(0.9, (halfW * 0.36) / 3.4);
@@ -31,12 +38,14 @@ export function IndexChapter({ copy }: { copy: ChaptersCopy["index"] }) {
     ];
   }, []);
 
-  // Scroll velocity gently skews the titles, then they settle.
+  // Scroll velocity gently skews titles + vertical pointer inertia glides the 16:9 preview plate.
   useLayoutEffect(() => {
     const el = sectionRef.current;
+    const preview = previewRef.current;
     if (!el) return;
+
     const mm = gsap.matchMedia();
-    mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+    mm.add("(min-width: 1025px) and (prefers-reduced-motion: no-preference)", () => {
       const names = Array.from(el.querySelectorAll<HTMLElement>(".v2-index-name"));
       const st = ScrollTrigger.create({
         trigger: el,
@@ -54,23 +63,41 @@ export function IndexChapter({ copy }: { copy: ChaptersCopy["index"] }) {
           });
         },
       });
+
+      let onMove: ((e: PointerEvent) => void) | null = null;
+      if (preview) {
+        const yTo = gsap.quickTo(preview, "y", { duration: 0.55, ease: "power3.out" });
+        onMove = (e: PointerEvent) => {
+          const rect = el.getBoundingClientRect();
+          if (!rect.height) return;
+          const relY = (e.clientY - rect.top) / rect.height - 0.5;
+          yTo(Math.max(-90, Math.min(90, relY * 160)));
+        };
+        el.addEventListener("pointermove", onMove, { passive: true });
+      }
+
       return () => {
         st.kill();
         gsap.set(names, { skewY: 0 });
+        if (onMove) el.removeEventListener("pointermove", onMove);
+        if (preview) gsap.set(preview, { y: 0 });
       };
     });
+
     return () => mm.revert();
   }, []);
 
+  const previewItem = copy.items[active ?? lastActive] ?? copy.items[0];
+
   return (
-    <section id="v2-index" ref={sectionRef} data-v2-surface="ink" className="v2-index v2-ink">
+    <section id="v2-index" ref={sectionRef} data-v2-surface="paper" className="v2-index v2-paper">
       <MorphField
         className="v2-particles"
         buildShapes={buildShapes}
         shapeIndex={active ?? IDLE}
         count={7000}
         mobileCount={1600}
-        dark
+        dark={dark}
       />
 
       <header className="v2-index-head">
@@ -78,18 +105,31 @@ export function IndexChapter({ copy }: { copy: ChaptersCopy["index"] }) {
         <span className="v2-index-hint">{copy.hint}</span>
       </header>
 
+      {/* Tablet / Mobile 16:9 Workspace Preview Slot */}
+      <figure className="v2-index-mobile-figure">
+        <div className="v2-index-mobile-frame">
+          <img
+            src={previewItem.imageSrc}
+            alt={previewItem.imageAlt}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <figcaption className="v2-hy-caption">{copy.mobileCaption}</figcaption>
+      </figure>
+
       <ul className={`v2-index-list ${active !== null ? "has-active" : ""}`}>
         {copy.items.map((it, i) => (
           <li
             key={it.href}
             className={active === i ? "is-active" : ""}
-            onPointerEnter={() => setActive(i)}
+            onPointerEnter={() => handleActivate(i)}
             onPointerLeave={() => setActive(null)}
           >
             <Link
               href={it.href}
               className="v2-index-row"
-              onFocus={() => setActive(i)}
+              onFocus={() => handleActivate(i)}
               onBlur={() => setActive(null)}
             >
               <span className="v2-num">0{i + 1}</span>
@@ -102,6 +142,27 @@ export function IndexChapter({ copy }: { copy: ChaptersCopy["index"] }) {
           </li>
         ))}
       </ul>
+
+      {/* Desktop Awwwards 16:9 Hover Image Preview with Clip-Path Reveal */}
+      <div
+        ref={previewRef}
+        className={`v2-index-preview ${active !== null ? "is-visible" : ""}`}
+        aria-hidden="true"
+      >
+        <div className="v2-index-preview-frame">
+          <img
+            src={previewItem.imageSrc}
+            alt={previewItem.imageAlt}
+            className="v2-index-preview-img"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="v2-index-preview-meta">
+          <span>{previewItem.name}</span>
+          <span className="v2-index-preview-route">{previewItem.routeLabel}</span>
+        </div>
+      </div>
     </section>
   );
 }

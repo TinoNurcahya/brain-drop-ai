@@ -151,7 +151,7 @@ export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
       triggerRef.current = ScrollTrigger.create({
         trigger: el,
         start: "top top",
-        end: "+=1900",
+        end: "+=1250",
         pin: true,
         scrub: true,
         onUpdate: (self) => update(self.progress),
