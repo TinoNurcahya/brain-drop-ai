@@ -6,10 +6,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLocale } from "@/components/layout/LocaleProvider";
 import { useTheme } from "@/components/layout/ThemeProvider";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
-import { V2_COPY } from "@/lib/landing-v2-copy";
-import { V2_CHAPTERS } from "@/lib/landing-v2-chapters";
-import { V2IntroLoader, hasIntroPlayedInMemory } from "./V2IntroLoader";
-import { V2Header } from "./V2Header";
+import { LANDING_COPY } from "@/lib/landing-copy";
+import { LANDING_CHAPTERS } from "@/lib/landing-chapters";
+import { IntroLoader, hasIntroPlayedInMemory } from "./IntroLoader";
+import { LandingHeader } from "./LandingHeader";
 import { ChapterHud } from "./ChapterHud";
 import { StoryStage } from "./StoryStage";
 import { ProductReveal } from "./ProductReveal";
@@ -18,17 +18,17 @@ import { ClipperChapter } from "./ClipperChapter";
 import { PrivacyPipeline } from "./PrivacyPipeline";
 import { IndexChapter } from "./IndexChapter";
 import { ClosingChapter } from "./ClosingChapter";
-import "@/styles/landing-v2.css";
+import "@/styles/landing.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function LandingV2({ homeHref = "/" }: { homeHref?: string }) {
+export function EditorialLanding({ homeHref = "/" }: { homeHref?: string }) {
   useSmoothScroll();
   const { locale } = useLocale();
   const { resolvedTheme } = useTheme();
   const dark = resolvedTheme === "dark";
-  const c = V2_COPY[locale];
-  const ch = V2_CHAPTERS[locale];
+  const c = LANDING_COPY[locale];
+  const ch = LANDING_CHAPTERS[locale];
   const root = useRef<HTMLDivElement>(null);
   const [introReady, setIntroReady] = useState(() => hasIntroPlayedInMemory());
 
@@ -73,13 +73,13 @@ export function LandingV2({ homeHref = "/" }: { homeHref?: string }) {
   }, [locale]);
 
   return (
-    <div ref={root} className="v2 -mt-20 sm:-mt-24">
-      <div className="v2-grain" aria-hidden="true" />
-      <V2IntroLoader caption={ch.introCaption} onRevealStart={handleRevealStart} />
-      <V2Header homeHref={homeHref} introReady={introReady} />
+    <div ref={root} className="lp -mt-20 sm:-mt-24">
+      <div className="lp-grain" aria-hidden="true" />
+      <IntroLoader caption={ch.introCaption} onRevealStart={handleRevealStart} />
+      <LandingHeader homeHref={homeHref} introReady={introReady} />
       <ChapterHud names={ch.hud} />
 
-      <div id="v2-main-stage" className="v2-main-stage">
+      <div id="landing-main-stage" className="landing-main-stage">
         <StoryStage copy={c} introReady={introReady} dark={dark} />
         <ProductReveal copy={c.product} dark={dark} />
         <HybridLedgerChapter copy={ch.hybrid} />

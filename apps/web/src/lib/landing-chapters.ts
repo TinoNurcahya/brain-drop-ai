@@ -96,7 +96,7 @@ export interface ChaptersCopy {
   };
 }
 
-export const V2_CHAPTERS: Record<Locale, ChaptersCopy> = {
+export const LANDING_CHAPTERS: Record<Locale, ChaptersCopy> = {
   en: {
     introCaption: "Local-first second brain",
     hud: ["Story", "Workspace", "Hybrid", "Clipper", "Privacy", "Index", "Close"],

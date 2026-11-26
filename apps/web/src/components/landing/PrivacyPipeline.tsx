@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { sanitize } from "@braindrop/core";
-import type { V2Copy } from "@/lib/landing-v2-copy";
+import type { LandingCopy } from "@/lib/landing-copy";
 import { scrollToY } from "@/lib/smooth-scroll";
 import { SplitLines } from "./SplitLines";
 
@@ -45,7 +45,7 @@ function parseFact(val: string) {
 }
 
 /** Private by default: exploded three-layer pipeline with traveling light beam + node blooms + live PII redaction. */
-export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
+export function PrivacyPipeline({ copy }: { copy: LandingCopy["why"] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const mainRef = useRef<SVGPathElement>(null);
   const glowRef = useRef<SVGPathElement>(null);
@@ -120,7 +120,7 @@ export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
     update(0);
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        ".v2-pipe-title .v2-word",
+        ".lp-pipe-title .lp-word",
         { yPercent: 115 },
         {
           yPercent: 0,
@@ -179,45 +179,45 @@ export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
 
   return (
     <section
-      id="v2-privacy"
+      id="privacy"
       ref={sectionRef}
-      data-v2-surface="ink"
-      className={`v2-pipe v2-ink ${isStatic ? "is-static" : ""}`}
+      data-surface="ink"
+      className={`lp-pipe lp-ink ${isStatic ? "is-static" : ""}`}
       aria-label={copy.lines.join(" ")}
     >
-      <div className="v2-pipe-copy">
-        <h2 className="v2-pipe-title" aria-label={copy.lines.join(" ")}>
+      <div className="lp-pipe-copy">
+        <h2 className="lp-pipe-title" aria-label={copy.lines.join(" ")}>
           <SplitLines lines={copy.lines} />
         </h2>
 
-        <div className="v2-pipe-beats" aria-live="polite">
+        <div className="lp-pipe-beats" aria-live="polite">
           {copy.beats.map((b, i) => (
-            <div key={b.title} className={`v2-pipe-beat ${beat === i || isStatic ? "is-active" : ""}`}>
-              <span className="v2-num">0{i + 1}</span>
+            <div key={b.title} className={`lp-pipe-beat ${beat === i || isStatic ? "is-active" : ""}`}>
+              <span className="lp-num">0{i + 1}</span>
               <h3>{b.title}</h3>
               <p>{b.body}</p>
             </div>
           ))}
         </div>
 
-        <div className="v2-pipe-jump">
+        <div className="lp-pipe-jump">
           <button
             type="button"
-            className={`v2-tlink v2-tlink-lg ${beat === 1 ? "is-active" : ""}`}
+            className={`lp-tlink lp-tlink-lg ${beat === 1 ? "is-active" : ""}`}
             onClick={() => jump(0.52)}
           >
             {copy.sandbox.localBtn}
           </button>
           <button
             type="button"
-            className={`v2-tlink v2-tlink-lg ${beat === 2 ? "is-active" : ""}`}
+            className={`lp-tlink lp-tlink-lg ${beat === 2 ? "is-active" : ""}`}
             onClick={() => jump(0.98)}
           >
             {copy.sandbox.cloudBtn}
           </button>
         </div>
 
-        <dl className="v2-pipe-facts">
+        <dl className="lp-pipe-facts">
           {copy.facts.map((f, idx) => (
             <div key={f.label}>
               <dt
@@ -233,10 +233,10 @@ export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
         </dl>
       </div>
 
-      <div className="v2-pipe-visual">
-        <svg className="v2-pipe-svg" viewBox="0 0 720 560" role="img" aria-label={labels.join(" → ")}>
+      <div className="lp-pipe-visual">
+        <svg className="lp-pipe-svg" viewBox="0 0 720 560" role="img" aria-label={labels.join(" → ")}>
           <defs>
-            <filter id="v2-pipe-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <filter id="lp-pipe-glow" x="-40%" y="-40%" width="180%" height="180%">
               <feGaussianBlur stdDeviation="5" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
@@ -246,15 +246,15 @@ export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
           </defs>
 
           {LAYERS.map((L, i) => (
-            <g key={L.id} className={`v2-pipe-layer ${layer === i ? "is-active" : ""}`}>
+            <g key={L.id} className={`lp-pipe-layer ${layer === i ? "is-active" : ""}`}>
               <polygon points={L.pts} />
               {DOTS[i].map((d, k) => (
                 <circle key={k} cx={d.x} cy={d.y} r={1.6} />
               ))}
               {layer === i && (
                 <>
-                  <circle cx={385} cy={L.cy} r={10} className="v2-pipe-bloom" />
-                  <circle cx={385} cy={L.cy} r={22} className="v2-pipe-bloom is-outer" />
+                  <circle cx={385} cy={L.cy} r={10} className="lp-pipe-bloom" />
+                  <circle cx={385} cy={L.cy} r={22} className="lp-pipe-bloom is-outer" />
                 </>
               )}
               <text x={130} y={L.cy + 30}>
@@ -263,21 +263,21 @@ export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
             </g>
           ))}
 
-          <path d={MAIN} className="v2-pipe-base" />
-          <path ref={mainRef} d={MAIN} className="v2-pipe-main" />
-          <path ref={glowRef} d={MAIN} className="v2-pipe-beam" filter="url(#v2-pipe-glow)" />
-          <path ref={backRef} d={BACK} className="v2-pipe-back" />
-          <path ref={loopRef} d={LOOP} className="v2-pipe-loop" filter="url(#v2-pipe-glow)" />
+          <path d={MAIN} className="lp-pipe-base" />
+          <path ref={mainRef} d={MAIN} className="lp-pipe-main" />
+          <path ref={glowRef} d={MAIN} className="lp-pipe-beam" filter="url(#lp-pipe-glow)" />
+          <path ref={backRef} d={BACK} className="lp-pipe-back" />
+          <path ref={loopRef} d={LOOP} className="lp-pipe-loop" filter="url(#lp-pipe-glow)" />
 
-          <text x={440} y={112} className={`v2-pipe-nano ${beat === 1 || isStatic ? "is-on" : ""}`}>
+          <text x={440} y={112} className={`lp-pipe-nano ${beat === 1 || isStatic ? "is-on" : ""}`}>
             {copy.labels.nano}
           </text>
-          <circle ref={haloRef} r={16} className="v2-pipe-halo" filter="url(#v2-pipe-glow)" />
-          <circle ref={packetRef} r={5} className="v2-pipe-packet" />
+          <circle ref={haloRef} r={16} className="lp-pipe-halo" filter="url(#lp-pipe-glow)" />
+          <circle ref={packetRef} r={5} className="lp-pipe-packet" />
         </svg>
 
-        <div className="v2-pipe-proof">
-          <div className="v2-pipe-samples" role="tablist" aria-label={copy.sandbox.sampleLabel}>
+        <div className="lp-pipe-proof">
+          <div className="lp-pipe-samples" role="tablist" aria-label={copy.sandbox.sampleLabel}>
             {copy.sandbox.samples.map((s, idx) => (
               <button
                 key={s.id}
@@ -285,25 +285,25 @@ export function PrivacyPipeline({ copy }: { copy: V2Copy["why"] }) {
                 role="tab"
                 aria-selected={sampleIdx === idx}
                 onClick={() => setSampleIdx(idx)}
-                className={`v2-tlink ${sampleIdx === idx ? "is-active" : ""}`}
+                className={`lp-tlink ${sampleIdx === idx ? "is-active" : ""}`}
               >
                 {s.label}
               </button>
             ))}
           </div>
 
-          <div className="v2-pipe-proof-row">
-            <span className="v2-pipe-proof-label">{copy.sandbox.rawLabel}</span>
-            <p className={`v2-pipe-text ${masked ? "is-dim" : ""}`}>{sample.rawText}</p>
+          <div className="lp-pipe-proof-row">
+            <span className="lp-pipe-proof-label">{copy.sandbox.rawLabel}</span>
+            <p className={`lp-pipe-text ${masked ? "is-dim" : ""}`}>{sample.rawText}</p>
           </div>
-          <div className={`v2-pipe-proof-row ${masked ? "is-on" : ""}`}>
-            <span className="v2-pipe-proof-label">
+          <div className={`lp-pipe-proof-row ${masked ? "is-on" : ""}`}>
+            <span className="lp-pipe-proof-label">
               {copy.sandbox.sanitizedLabel} · {result.redactions.length} {copy.sandbox.scrubbedNote}
             </span>
-            <p className="v2-pipe-text">
+            <p className="lp-pipe-text">
               {parts.map((part, i) =>
                 part.startsWith("[REDACTED_") ? (
-                  <mark key={i} className="v2-pii-redacted">
+                  <mark key={i} className="lp-pii-redacted">
                     {part}
                   </mark>
                 ) : (

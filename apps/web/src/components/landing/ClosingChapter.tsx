@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUp } from "lucide-react";
 import { RollingText } from "@/components/ui/RollingText";
-import type { ChaptersCopy } from "@/lib/landing-v2-chapters";
+import type { ChaptersCopy } from "@/lib/landing-chapters";
 import { scrollToY } from "@/lib/smooth-scroll";
 import { ParticleField } from "./ParticleField";
 import { textShape } from "./shapes";
@@ -41,7 +41,7 @@ export function ClosingChapter({
 
     const useStickyCurtain =
       window.matchMedia("(min-width: 1024px) and (min-height: 680px)").matches;
-    const mainStage = document.getElementById("v2-main-stage");
+    const mainStage = document.getElementById("landing-main-stage");
 
     const ctx = gsap.context(() => {
       if (useStickyCurtain && mainStage) {
@@ -72,19 +72,19 @@ export function ClosingChapter({
 
   return (
     <footer
-      id="v2-closing"
+      id="closing"
       ref={sectionRef}
-      data-v2-surface="ink"
-      className="v2-closing v2-ink"
+      data-surface="ink"
+      className="lp-closing lp-ink"
     >
-      <div className="v2-closing-top">
-        <Link href={copy.ctaHref} className="group v2-closing-cta" data-magnetic>
+      <div className="lp-closing-top">
+        <Link href={copy.ctaHref} className="group lp-closing-cta" data-magnetic>
           <RollingText text={copy.cta} />
         </Link>
       </div>
 
-      <div className="v2-closing-foot">
-        <ul className="v2-closing-links">
+      <div className="lp-closing-foot">
+        <ul className="lp-closing-links">
           {copy.links.map((lnk) => (
             <li key={lnk.label}>
               {lnk.download ? (
@@ -100,15 +100,15 @@ export function ClosingChapter({
           ))}
         </ul>
 
-        <div className="v2-closing-meta">
-          <div className="v2-closing-meta-left">
+        <div className="lp-closing-meta">
+          <div className="lp-closing-meta-left">
             <span>{copy.legal}</span>
-            <span className="v2-closing-dot" aria-hidden="true">·</span>
+            <span className="lp-closing-dot" aria-hidden="true">·</span>
             <span>{copy.author}</span>
           </div>
           <button
             type="button"
-            className="group v2-back-top"
+            className="group lp-back-top"
             onClick={() => scrollToY(0)}
           >
             <RollingText text={copy.backToTop} />
@@ -117,10 +117,10 @@ export function ClosingChapter({
         </div>
       </div>
 
-      <div className="v2-closing-mark">
+      <div className="lp-closing-mark">
         {webgl && (
           <ParticleField
-            className="v2-particles"
+            className="lp-particles"
             buildTargets={buildTargets}
             count={11000}
             mobileCount={2100}

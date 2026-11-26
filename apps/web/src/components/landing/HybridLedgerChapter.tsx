@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollWordReveal } from "@/components/ui/ScrollWordReveal";
-import type { ChaptersCopy } from "@/lib/landing-v2-chapters";
+import type { ChaptersCopy } from "@/lib/landing-chapters";
 import { SplitLines } from "./SplitLines";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -30,7 +30,7 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        ".v2-hy-title .v2-word",
+        ".lp-hy-title .lp-word",
         { yPercent: 112 },
         {
           yPercent: 0,
@@ -74,7 +74,7 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
 
       // Quiet staggered hairline ledger row reveals.
       gsap.fromTo(
-        ".v2-hy-row",
+        ".lp-hy-row",
         { autoAlpha: 0, y: 14 },
         {
           autoAlpha: 1,
@@ -83,7 +83,7 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
           ease: "power3.out",
           stagger: 0.05,
           scrollTrigger: {
-            trigger: ".v2-hy-ledger",
+            trigger: ".lp-hy-ledger",
             start: "top 82%",
             once: true,
           },
@@ -96,49 +96,49 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
 
   return (
     <section
-      id="v2-hybrid"
+      id="hybrid"
       ref={sectionRef}
-      data-v2-surface="ink"
-      className="v2-hy v2-ink"
+      data-surface="ink"
+      className="lp-hy lp-ink"
       aria-label={copy.title}
     >
-      <div className="v2-hy-wrap">
-        <header className="v2-hy-head">
-          <h2 className="v2-h2 v2-hy-title" aria-label={copy.title}>
+      <div className="lp-hy-wrap">
+        <header className="lp-hy-head">
+          <h2 className="lp-h2 lp-hy-title" aria-label={copy.title}>
             <SplitLines lines={[copy.title]} />
           </h2>
         </header>
 
         {/* Editorial 16:9 showcase slot with scroll-scrubbed clip-path reveal */}
-        <figure className="v2-hy-figure">
-          <div ref={frameRef} className="v2-hy-frame">
+        <figure className="lp-hy-figure">
+          <div ref={frameRef} className="lp-hy-frame">
             <img
               ref={imgRef}
               src={copy.imageSrc}
               alt={copy.imageAlt}
-              className="v2-hy-img"
+              className="lp-hy-img"
               loading="lazy"
               decoding="async"
             />
           </div>
-          <figcaption className="v2-hy-caption">{copy.imageCaption}</figcaption>
+          <figcaption className="lp-hy-caption">{copy.imageCaption}</figcaption>
         </figure>
 
         {/* Editorial scroll-word thesis */}
-        <div className="v2-hy-thesis-wrap">
-          <ScrollWordReveal as="p" className="v2-hy-thesis">
+        <div className="lp-hy-thesis-wrap">
+          <ScrollWordReveal as="p" className="lp-hy-thesis">
             {copy.thesis}
           </ScrollWordReveal>
         </div>
 
         {/* Hairline Task Routing Ledger (box-free monograph table) */}
-        <div className="v2-hy-ledger">
-          <div className="v2-hy-block-head">
+        <div className="lp-hy-ledger">
+          <div className="lp-hy-block-head">
             <h3>{copy.ledgerTitle}</h3>
           </div>
 
-          <div className="v2-hy-table" role="table" aria-label={copy.ledgerTitle}>
-            <div className="v2-hy-thead" role="row">
+          <div className="lp-hy-table" role="table" aria-label={copy.ledgerTitle}>
+            <div className="lp-hy-thead" role="row">
               {copy.ledgerHeaders.map((h) => (
                 <span key={h} role="columnheader">
                   {h}
@@ -147,18 +147,18 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
             </div>
 
             {copy.routes.map((r) => (
-              <div key={r.task} className="v2-hy-row" role="row">
-                <span className="v2-hy-task" role="cell">
+              <div key={r.task} className="lp-hy-row" role="row">
+                <span className="lp-hy-task" role="cell">
                   {r.task}
                 </span>
-                <span className={`v2-hy-model is-${r.tier}`} role="cell">
+                <span className={`lp-hy-model is-${r.tier}`} role="cell">
                   <i aria-hidden="true" />
                   {r.model}
                 </span>
-                <span className="v2-hy-mono" role="cell">
+                <span className="lp-hy-mono" role="cell">
                   {r.latency}
                 </span>
-                <span className={`v2-hy-egress is-${r.tier}`} role="cell">
+                <span className={`lp-hy-egress is-${r.tier}`} role="cell">
                   {r.egress}
                 </span>
               </div>
@@ -167,14 +167,14 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
         </div>
 
         {/* Hairline Comparison Ledger + Offline / Any-Browser Proof */}
-        <div className="v2-hy-split">
-          <div className="v2-hy-compare">
-            <div className="v2-hy-block-head">
+        <div className="lp-hy-split">
+          <div className="lp-hy-compare">
+            <div className="lp-hy-block-head">
               <h3>{copy.compareTitle}</h3>
             </div>
 
-            <div className="v2-hy-ctable" role="table" aria-label={copy.compareTitle}>
-              <div className="v2-hy-cthead" role="row">
+            <div className="lp-hy-ctable" role="table" aria-label={copy.compareTitle}>
+              <div className="lp-hy-cthead" role="row">
                 {copy.compareHeaders.map((h) => (
                   <span key={h} role="columnheader">
                     {h}
@@ -183,14 +183,14 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
               </div>
 
               {copy.compare.map((row) => (
-                <div key={row.dimension} className="v2-hy-crow" role="row">
-                  <span className="v2-hy-dim" role="cell">
+                <div key={row.dimension} className="lp-hy-crow" role="row">
+                  <span className="lp-hy-dim" role="cell">
                     {row.dimension}
                   </span>
-                  <span className="v2-hy-ours" role="cell">
+                  <span className="lp-hy-ours" role="cell">
                     {row.braindrop}
                   </span>
-                  <span className="v2-hy-theirs" role="cell">
+                  <span className="lp-hy-theirs" role="cell">
                     {row.cloudOnly}
                   </span>
                 </div>
@@ -198,12 +198,12 @@ export function HybridLedgerChapter({ copy }: { copy: ChaptersCopy["hybrid"] }) 
             </div>
           </div>
 
-          <div className="v2-hy-notes">
-            <article className="v2-hy-note">
+          <div className="lp-hy-notes">
+            <article className="lp-hy-note">
               <h4>{copy.offlineTitle}</h4>
               <p>{copy.offlineBody}</p>
             </article>
-            <article className="v2-hy-note">
+            <article className="lp-hy-note">
               <h4>{copy.browserTitle}</h4>
               <p>{copy.browserBody}</p>
             </article>

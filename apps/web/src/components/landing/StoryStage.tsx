@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight } from "lucide-react";
 import { RollingText } from "@/components/ui/RollingText";
-import type { V2Copy } from "@/lib/landing-v2-copy";
+import type { LandingCopy } from "@/lib/landing-copy";
 import { scrollToY } from "@/lib/smooth-scroll";
 import { ParticleField } from "./ParticleField";
 import { SplitLines } from "./SplitLines";
@@ -21,7 +21,7 @@ export function StoryStage({
   introReady = true,
   dark = true,
 }: {
-  copy: V2Copy;
+  copy: LandingCopy;
   introReady?: boolean;
   dark?: boolean;
 }) {
@@ -46,14 +46,14 @@ export function StoryStage({
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       entrancePlayedRef.current = true;
-      gsap.set(el.querySelectorAll(".v2-hero-copy .v2-word"), { yPercent: 0, rotate: 0 });
-      gsap.set(el.querySelectorAll(".v2-hero-fade"), { autoAlpha: 1, y: 0 });
+      gsap.set(el.querySelectorAll(".lp-hero-copy .lp-word"), { yPercent: 0, rotate: 0 });
+      gsap.set(el.querySelectorAll(".lp-hero-fade"), { autoAlpha: 1, y: 0 });
       return;
     }
 
     if (!introReady) {
-      gsap.set(el.querySelectorAll(".v2-hero-copy .v2-word"), { yPercent: 112, rotate: 4 });
-      gsap.set(el.querySelectorAll(".v2-hero-fade"), { autoAlpha: 0, y: 18 });
+      gsap.set(el.querySelectorAll(".lp-hero-copy .lp-word"), { yPercent: 112, rotate: 4 });
+      gsap.set(el.querySelectorAll(".lp-hero-fade"), { autoAlpha: 0, y: 18 });
       return;
     }
 
@@ -61,7 +61,7 @@ export function StoryStage({
     entrancePlayedRef.current = true;
 
     const ctx = gsap.context(() => {
-      gsap.to(".v2-hero-copy .v2-word", {
+      gsap.to(".lp-hero-copy .lp-word", {
         yPercent: 0,
         rotate: 0,
         duration: 1.1,
@@ -69,7 +69,7 @@ export function StoryStage({
         stagger: 0.07,
         delay: 0.08,
       });
-      gsap.to(".v2-hero-fade", {
+      gsap.to(".lp-hero-fade", {
         autoAlpha: 1,
         y: 0,
         duration: 0.85,
@@ -131,14 +131,14 @@ export function StoryStage({
 
   return (
     <section
-      id="v2-story"
+      id="story"
       ref={sectionRef}
-      data-v2-surface="ink"
-      className={`v2-stage v2-ink ${reduced ? "is-static" : ""}`}
+      data-surface="ink"
+      className={`lp-stage lp-ink ${reduced ? "is-static" : ""}`}
     >
       {webgl ? (
         <ParticleField
-          className="v2-particles"
+          className="lp-particles"
           buildTargets={buildTargets}
           count={9000}
           mobileCount={1800}
@@ -147,36 +147,36 @@ export function StoryStage({
           onUnsupported={() => setWebgl(false)}
         />
       ) : (
-        <div className="v2-particles v2-fallback-constellation" aria-hidden="true" />
+        <div className="lp-particles lp-fallback-constellation" aria-hidden="true" />
       )}
 
-      <div className={`v2-hero-copy ${heroHidden ? "is-hidden" : ""}`}>
-        <h1 className="v2-h1" aria-label={copy.hero.lines.join(" ")}>
+      <div className={`lp-hero-copy ${heroHidden ? "is-hidden" : ""}`}>
+        <h1 className="lp-h1" aria-label={copy.hero.lines.join(" ")}>
           <SplitLines lines={copy.hero.lines} />
         </h1>
 
-        <p className="v2-sub v2-hero-fade">{copy.hero.sub}</p>
+        <p className="lp-sub lp-hero-fade">{copy.hero.sub}</p>
 
-        <div className="v2-hero-actions v2-hero-fade">
-          <Link href="/notes" className="group v2-enter-link" data-magnetic>
+        <div className="lp-hero-actions lp-hero-fade">
+          <Link href="/notes" className="group lp-enter-link" data-magnetic>
             <RollingText text={copy.hero.cta} />
-            <span className="v2-enter-arrow" aria-hidden="true">→</span>
+            <span className="lp-enter-arrow" aria-hidden="true">→</span>
           </Link>
-          <Link href="/capture" className="group v2-quiet-link">
+          <Link href="/capture" className="group lp-quiet-link">
             <RollingText text={copy.hero.secondaryCta} />
             <ArrowUpRight size={14} aria-hidden="true" />
           </Link>
         </div>
       </div>
 
-      <div className="v2-acts">
+      <div className="lp-acts">
         {copy.story.acts.map((a, i) => (
           <article
             key={a.title}
-            className={`v2-act ${act === i ? "is-active" : ""}`}
+            className={`lp-act ${act === i ? "is-active" : ""}`}
             aria-hidden={!reduced && act !== i}
           >
-            <span className="v2-num">0{i + 1}</span>
+            <span className="lp-num">0{i + 1}</span>
             <h2>{a.title}</h2>
             <p>{a.body}</p>
           </article>
@@ -184,7 +184,7 @@ export function StoryStage({
       </div>
 
       {!reduced && (
-        <nav className="v2-rail" aria-label="Story progress">
+        <nav className="lp-rail" aria-label="Story progress">
           {copy.story.rail.map((label, i) => (
             <button
               key={label}
@@ -193,13 +193,13 @@ export function StoryStage({
               onClick={() => jumpTo(i)}
             >
               <span>0{i}</span>
-              <span className="v2-rail-label">{label}</span>
+              <span className="lp-rail-label">{label}</span>
             </button>
           ))}
         </nav>
       )}
 
-      <span className={`v2-scroll-hint ${heroHidden ? "is-hidden" : ""}`}>
+      <span className={`lp-scroll-hint ${heroHidden ? "is-hidden" : ""}`}>
         {copy.hero.hint} ↓
       </span>
     </section>

@@ -1,6 +1,6 @@
 import type { Locale } from "./landing-i18n";
 
-export interface V2Act {
+export interface LandingAct {
   title: string;
   body: string;
 }
@@ -12,7 +12,7 @@ export type WorkspaceSceneId =
   | "flashcards"
   | "telemetry";
 
-export interface V2ProductTab {
+export interface LandingProductTab {
   id: WorkspaceSceneId;
   name: string;
   caption: string;
@@ -21,7 +21,7 @@ export interface V2ProductTab {
   ctaLabel: string;
 }
 
-export interface V2PrivacySample {
+export interface LandingPrivacySample {
   id: string;
   label: string;
   rawText: string;
@@ -29,7 +29,7 @@ export interface V2PrivacySample {
   cloudSynthesis: string;
 }
 
-export interface V2Copy {
+export interface LandingCopy {
   nav: {
     links: { label: string; target: string }[];
     cta: string;
@@ -44,12 +44,12 @@ export interface V2Copy {
   };
   story: {
     rail: string[];
-    acts: V2Act[];
+    acts: LandingAct[];
   };
   product: {
     title: string;
     sub: string;
-    tabs: V2ProductTab[];
+    tabs: LandingProductTab[];
     scenes: {
       capture: {
         modes: [string, string, string];
@@ -126,22 +126,22 @@ export interface V2Copy {
       sanitizedLabel: string;
       keptLocalNote: string;
       scrubbedNote: string;
-      samples: V2PrivacySample[];
+      samples: LandingPrivacySample[];
     };
     facts: { value: string; label: string }[];
   };
 }
 
-export const V2_COPY: Record<Locale, V2Copy> = {
+export const LANDING_COPY: Record<Locale, LandingCopy> = {
   en: {
     nav: {
       links: [
-        { label: "Story", target: "#v2-story" },
-        { label: "Workspace", target: "#v2-workspace" },
-        { label: "Hybrid", target: "#v2-hybrid" },
-        { label: "Clipper", target: "#v2-clipper" },
-        { label: "Privacy", target: "#v2-privacy" },
-        { label: "Index", target: "#v2-index" },
+        { label: "Story", target: "#story" },
+        { label: "Workspace", target: "#workspace" },
+        { label: "Hybrid", target: "#hybrid" },
+        { label: "Clipper", target: "#clipper" },
+        { label: "Privacy", target: "#privacy" },
+        { label: "Index", target: "#index" },
       ],
       cta: "Open workspace",
       language: "Switch language",
@@ -421,12 +421,12 @@ export const V2_COPY: Record<Locale, V2Copy> = {
   id: {
     nav: {
       links: [
-        { label: "Cerita", target: "#v2-story" },
-        { label: "Workspace", target: "#v2-workspace" },
-        { label: "Hibrida", target: "#v2-hybrid" },
-        { label: "Clipper", target: "#v2-clipper" },
-        { label: "Privasi", target: "#v2-privacy" },
-        { label: "Index", target: "#v2-index" },
+        { label: "Cerita", target: "#story" },
+        { label: "Workspace", target: "#workspace" },
+        { label: "Hibrida", target: "#hybrid" },
+        { label: "Clipper", target: "#clipper" },
+        { label: "Privasi", target: "#privacy" },
+        { label: "Index", target: "#index" },
       ],
       cta: "Buka workspace",
       language: "Ganti bahasa",

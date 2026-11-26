@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight } from "lucide-react";
-import type { ChaptersCopy } from "@/lib/landing-v2-chapters";
+import type { ChaptersCopy } from "@/lib/landing-chapters";
 import { MorphField } from "./MorphField";
 import { cardsShape, dropShape, dustShape, graphShape, gridShape, linesShape } from "./shapes";
 
@@ -46,7 +46,7 @@ export function IndexChapter({ copy, dark }: { copy: ChaptersCopy["index"]; dark
 
     const mm = gsap.matchMedia();
     mm.add("(min-width: 1025px) and (prefers-reduced-motion: no-preference)", () => {
-      const names = Array.from(el.querySelectorAll<HTMLElement>(".v2-index-name"));
+      const names = Array.from(el.querySelectorAll<HTMLElement>(".lp-index-name"));
       const st = ScrollTrigger.create({
         trigger: el,
         start: "top bottom",
@@ -90,9 +90,9 @@ export function IndexChapter({ copy, dark }: { copy: ChaptersCopy["index"]; dark
   const previewItem = copy.items[active ?? lastActive] ?? copy.items[0];
 
   return (
-    <section id="v2-index" ref={sectionRef} data-v2-surface="paper" className="v2-index v2-paper">
+    <section id="index" ref={sectionRef} data-surface="paper" className="lp-index lp-paper">
       <MorphField
-        className="v2-particles"
+        className="lp-particles"
         buildShapes={buildShapes}
         shapeIndex={active ?? IDLE}
         count={7000}
@@ -100,14 +100,14 @@ export function IndexChapter({ copy, dark }: { copy: ChaptersCopy["index"]; dark
         dark={dark}
       />
 
-      <header className="v2-index-head">
-        <h2 className="v2-index-title">{copy.title}</h2>
-        <span className="v2-index-hint">{copy.hint}</span>
+      <header className="lp-index-head">
+        <h2 className="lp-index-title">{copy.title}</h2>
+        <span className="lp-index-hint">{copy.hint}</span>
       </header>
 
       {/* Tablet / Mobile 16:9 Workspace Preview Slot */}
-      <figure className="v2-index-mobile-figure">
-        <div className="v2-index-mobile-frame">
+      <figure className="lp-index-mobile-figure">
+        <div className="lp-index-mobile-frame">
           <img
             src={previewItem.imageSrc}
             alt={previewItem.imageAlt}
@@ -115,10 +115,10 @@ export function IndexChapter({ copy, dark }: { copy: ChaptersCopy["index"]; dark
             decoding="async"
           />
         </div>
-        <figcaption className="v2-hy-caption">{copy.mobileCaption}</figcaption>
+        <figcaption className="lp-hy-caption">{copy.mobileCaption}</figcaption>
       </figure>
 
-      <ul className={`v2-index-list ${active !== null ? "has-active" : ""}`}>
+      <ul className={`lp-index-list ${active !== null ? "has-active" : ""}`}>
         {copy.items.map((it, i) => (
           <li
             key={it.href}
@@ -128,16 +128,16 @@ export function IndexChapter({ copy, dark }: { copy: ChaptersCopy["index"]; dark
           >
             <Link
               href={it.href}
-              className="v2-index-row"
+              className="lp-index-row"
               onFocus={() => handleActivate(i)}
               onBlur={() => setActive(null)}
             >
-              <span className="v2-num">0{i + 1}</span>
-              <span className="v2-index-name">
+              <span className="lp-num">0{i + 1}</span>
+              <span className="lp-index-name">
                 {it.name}
-                <ArrowUpRight className="v2-index-arrow" size={26} aria-hidden="true" />
+                <ArrowUpRight className="lp-index-arrow" size={26} aria-hidden="true" />
               </span>
-              <span className="v2-index-line">{it.line}</span>
+              <span className="lp-index-line">{it.line}</span>
             </Link>
           </li>
         ))}
@@ -146,21 +146,21 @@ export function IndexChapter({ copy, dark }: { copy: ChaptersCopy["index"]; dark
       {/* Desktop Awwwards 16:9 Hover Image Preview with Clip-Path Reveal */}
       <div
         ref={previewRef}
-        className={`v2-index-preview ${active !== null ? "is-visible" : ""}`}
+        className={`lp-index-preview ${active !== null ? "is-visible" : ""}`}
         aria-hidden="true"
       >
-        <div className="v2-index-preview-frame">
+        <div className="lp-index-preview-frame">
           <img
             src={previewItem.imageSrc}
             alt={previewItem.imageAlt}
-            className="v2-index-preview-img"
+            className="lp-index-preview-img"
             loading="lazy"
             decoding="async"
           />
         </div>
-        <div className="v2-index-preview-meta">
+        <div className="lp-index-preview-meta">
           <span>{previewItem.name}</span>
-          <span className="v2-index-preview-route">{previewItem.routeLabel}</span>
+          <span className="lp-index-preview-route">{previewItem.routeLabel}</span>
         </div>
       </div>
     </section>
