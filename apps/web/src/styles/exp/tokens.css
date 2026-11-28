@@ -1,0 +1,61 @@
+:root {
+  color-scheme: light;
+
+  /* =========================================================================
+     BrainDrop AI — Walton Editorial Scrollytelling Token System
+     Strict 60-30-10 Color Discipline:
+     - 60% Surface: Warm Grained Parchment (#fffcf8) ↔ Warm Obsidian (#12110e)
+     - 30% Neutral Ink & Rules: Off-Black (#12110e), Stone (#4b4a45), Sand (#d0c4b1)
+     - 10% High-Contrast Accent: Electric Data Acid-Lime (#e7e72b)
+     ========================================================================= */
+
+  /* 60% Dominant Surfaces */
+  --wf-parchment: #fffcf8;
+  --wf-cream: #f4f1e8;
+  --wf-menu-bg: #fdfdfc;
+  --wf-obsidian: #12110e;
+  --wf-obsidian-card: #1a1915;
+  --wf-obsidian-soft: #24221d;
+
+  /* 30% Neutral Ink & Hairlines */
+  --wf-ink: #12110e;
+  --wf-ink-secondary: #494842;
+  --wf-ink-muted: #66645c;
+  --wf-sand: #d0c4b1;
+  --wf-rule: #dedad0;
+  --wf-menu-border: #dad8ce;
+
+  --wf-light: #fffcf8;
+  --wf-light-muted: rgba(255, 252, 248, 0.76);
+  --wf-light-line: rgba(255, 252, 248, 0.18);
+  --wf-light-line-strong: rgba(255, 252, 248, 0.34);
+
+  /* 10% Electric Data Acid-Lime Accent (#e7e72b) + subtle tonal derivatives */
+  --wf-lime: #e7e72b;
+  --wf-lime-hover: #f0f046;
+  --wf-lime-soft: rgba(231, 231, 43, 0.16);
+  --wf-chip-stone: #9b8b73;
+  --wf-chip-slate: #56544d;
+
+  /* Typography — Strictly 2 Primary Families + System Monospace for Tech Data */
+  --wf-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --wf-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --wf-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* 10-Tier Z-Index Architecture (mirrors Walton scrollytelling layers) */
+  --z-footer: 10;
+  --z-main: 20;
+  --z-header: 60;
+  --z-progress: 65;
+  --z-context-hud: 70;
+  --z-menu-backdrop: 80;
+  --z-menu-modal: 85;
+  --z-menu-btn: 90;
+  --z-lightbox: 100;
+
+  /* Geometry & Motion */
+  --wf-container: 1380px;
+  --wf-gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --wf-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --wf-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}

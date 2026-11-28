@@ -19,7 +19,6 @@ interface Clip {
   time: string;
 }
 
-// Four diagonal stations across a 3900×1560 editorial sheet.
 const PINS = [
   { x: 420, y: 420, cx: 725, cy: 550 },
   { x: 1420, y: 860, cx: 1715, cy: 985 },
@@ -27,20 +26,20 @@ const PINS = [
   { x: 3260, y: 830, cx: 3540, cy: 960 },
 ] as const;
 
-// Continuous Cubic Bézier thread arching cleanly from station to station.
 const THREAD_PATH =
   "M 420 420 C 780 280, 1140 860, 1420 860 C 1760 725, 2060 390, 2380 390 C 2730 255, 2970 830, 3260 830";
 
-// Subtle long-range cross-reference filament linking initial web clip (01) to local graph (03).
 const CROSS_REF_PATH = "M 420 420 C 1020 140, 1780 140, 2380 390";
 
 const trunc = (s: string, max = 92) => (s.length > max ? `${s.slice(0, max).trimEnd()}…` : s);
 
-/** Editorial 2D Camera-Pan Thread Canvas: Chrome MV3 Web Clipper -> Local Nano Triage -> Graph -> Recall. */
+/** Editorial 2D Camera-Pan Thread Canvas: Chrome MV3 Selection Popover -> Local Nano Triage -> Graph -> Recall. */
 export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const rigRef = useRef<HTMLDivElement>(null);
+  const mobileWrapRef = useRef<HTMLDivElement>(null);
+  const mobileLineRef = useRef<HTMLSpanElement>(null);
   const threadRef = useRef<SVGPathElement>(null);
   const crossRef = useRef<SVGPathElement>(null);
   const beadRef = useRef<SVGCircleElement>(null);
@@ -51,10 +50,13 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
   const selectedRef = useRef(false);
   const autoDone = useRef(false);
   const countRef = useRef(0);
+  const pulseTimerRef = useRef<number | null>(null);
 
   const [activeStation, setActiveStation] = useState(0);
   const [litCount, setLitCount] = useState(1);
+  const [hoveredIdx, setHoveredIdx] = useState<0 | 1>(1);
   const [clip, setClip] = useState<Clip | null>(null);
+  const [justClipped, setJustClipped] = useState(false);
   const [answerOpen, setAnswerOpen] = useState(false);
 
   const saveClip = useCallback((text: string, idx: 0 | 1 = 1) => {
@@ -67,6 +69,9 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
       n,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     });
+    setJustClipped(true);
+    if (pulseTimerRef.current) window.clearTimeout(pulseTimerRef.current);
+    pulseTimerRef.current = window.setTimeout(() => setJustClipped(false), 1200);
   }, []);
 
   useLayoutEffect(() => {
@@ -75,10 +80,37 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
     if (!el || !rig) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const narrow = window.matchMedia("(max-width: 1023px)").matches;
-    if (reduce || narrow) {
+    const narrow = window.matchMedia("(max-width: 1024px)").matches;
+
+    if (reduce) {
       setLitCount(copy.sentences.length);
       return;
+    }
+
+    // Progressive scroll-drawn vertical thread on mobile / tablet (<= 1024px)
+    if (narrow) {
+      setLitCount(copy.sentences.length);
+      const mWrap = mobileWrapRef.current;
+      const mLine = mobileLineRef.current;
+      if (!mWrap || !mLine) return;
+
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          mLine,
+          { scaleY: 0.08 },
+          {
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: mWrap,
+              start: "top 80%",
+              end: "bottom 35%",
+              scrub: 0.5,
+            },
+          }
+        );
+      }, mWrap);
+      return () => ctx.revert();
     }
 
     const computeWaypoints = () => {
@@ -192,6 +224,7 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
     }, el);
 
     return () => {
+      if (pulseTimerRef.current) window.clearTimeout(pulseTimerRef.current);
       triggerRef.current = null;
       ctx.revert();
     };
@@ -214,18 +247,32 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
     if (text.length < 12) return;
     selectedRef.current = true;
     window.setTimeout(() => (selectedRef.current = false), 80);
-    const matchedIdx: 0 | 1 = copy.sentences[0] && text.includes(copy.sentences[0].slice(0, 18)) ? 0 : 1;
+    const matchedIdx: 0 | 1 =
+      copy.sentences[0] && text.includes(copy.sentences[0].slice(0, 18)) ? 0 : 1;
+    setHoveredIdx(matchedIdx);
     saveClip(text, matchedIdx);
     sel.removeAllRanges();
   };
 
   const clipSentence = (i: number) => {
     if (selectedRef.current) return;
-    const s = sentenceRefs.current[i];
-    if (s?.textContent) saveClip(s.textContent, i === 0 ? 0 : 1);
+    const idx: 0 | 1 = i === 0 ? 0 : 1;
+    setHoveredIdx(idx);
+    const s = sentenceRefs.current[idx];
+    if (s?.textContent) saveClip(s.textContent, idx);
   };
 
-  const activeClipIdx: 0 | 1 = clip ? clip.sentenceIdx : 1;
+  const handleFloatingClipAction = () => {
+    const sel = window.getSelection();
+    const selText = sel && !sel.isCollapsed ? sel.toString().trim() : "";
+    if (selText.length >= 12) {
+      handleSelectClip();
+      return;
+    }
+    clipSentence(hoveredIdx);
+  };
+
+  const activeClipIdx: 0 | 1 = clip ? clip.sentenceIdx : hoveredIdx;
   const activeSummary = copy.triage.summaries[activeClipIdx];
   const activeTags = copy.triage.tagSets[activeClipIdx];
 
@@ -270,7 +317,6 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
         <div ref={rigRef} className="lp-board-rig">
           <div className="lp-board-dots" aria-hidden="true" />
 
-          {/* Sweeping Single-Accent Cubic Bézier Thread */}
           <svg
             className="lp-board-svg"
             viewBox="0 0 3900 1560"
@@ -286,7 +332,9 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
               <g
                 key={idx}
                 transform={`translate(${pin.x}, ${pin.y})`}
-                className={`lp-pin-node ${activeStation === idx ? "is-active" : activeStation > idx ? "is-done" : ""}`}
+                className={`lp-pin-node ${
+                  activeStation === idx ? "is-active" : activeStation > idx ? "is-done" : ""
+                } ${idx === 0 && justClipped ? "is-pulsing" : ""}`}
               >
                 <circle r="16" className="lp-pin-ring" />
                 <line x1="-22" y1="0" x2="-10" y2="0" className="lp-pin-tick" />
@@ -301,42 +349,63 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
             <circle ref={beadRef} cx={PINS[0].x} cy={PINS[0].y} r="4.5" className="lp-thread-bead" />
           </svg>
 
-          {/* STATION 01: Highlight / Clip from page */}
+          {/* STATION 01: Highlight / Clip from page + Authentic Chrome MV3 Floating Action Bar */}
           <article
             className={`lp-station ${activeStation === 0 ? "is-active" : ""}`}
-            style={{ left: PINS[0].x + 34, top: PINS[0].y + 18, width: 610 }}
+            style={{ left: PINS[0].x + 34, top: PINS[0].y + 12, width: 620 }}
           >
-            <span className="lp-station-meta">
-              <b>{copy.stations[0].step}</b> {copy.stations[0].label}
-            </span>
+            <div className="lp-station-head-row">
+              <span className="lp-station-meta">
+                <b>{copy.stations[0].step}</b> {copy.stations[0].label}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleFloatingClipAction}
+                className={`lp-mv3-bar ${justClipped ? "is-clipped" : ""}`}
+              >
+                <i className="lp-mv3-dot" aria-hidden="true" />
+                <span>{justClipped ? copy.clippedPulseLabel : copy.clipActionLabel}</span>
+              </button>
+            </div>
+
             <p className="lp-station-quote" onMouseUp={handleSelectClip} onTouchEnd={handleSelectClip}>
-              {copy.sentences.map((s, i) => (
-                <span
-                  key={i}
-                  ref={(node) => {
-                    sentenceRefs.current[i] = node;
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  className={`lp-clip-s ${i < litCount ? "is-lit" : ""}`}
-                  onClick={() => clipSentence(i)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      clipSentence(i);
-                    }
-                  }}
-                >
-                  {s}{" "}
-                </span>
-              ))}
+              {copy.sentences.map((s, i) => {
+                const idx: 0 | 1 = i === 0 ? 0 : 1;
+                return (
+                  <span
+                    key={i}
+                    ref={(node) => {
+                      sentenceRefs.current[i] = node;
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    onMouseEnter={() => setHoveredIdx(idx)}
+                    onFocus={() => setHoveredIdx(idx)}
+                    className={`lp-clip-s ${i < litCount ? "is-lit" : ""} ${
+                      hoveredIdx === idx ? "is-targeted" : ""
+                    }`}
+                    onClick={() => clipSentence(i)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        clipSentence(i);
+                      }
+                    }}
+                  >
+                    {s}{" "}
+                  </span>
+                );
+              })}
             </p>
             <span className="lp-station-foot">{copy.sourceUrl}</span>
           </article>
 
           {/* STATION 02: Instant On-Device Nano Auto-Tag & Summary (~38ms) */}
           <article
-            className={`lp-station ${activeStation === 1 ? "is-active" : ""}`}
+            className={`lp-station ${activeStation === 1 ? "is-active" : ""} ${
+              justClipped ? "is-updated" : ""
+            }`}
             style={{ left: PINS[1].x + 34, top: PINS[1].y + 18, width: 590 }}
           >
             <span className="lp-station-meta">
@@ -400,13 +469,26 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
         </div>
       </div>
 
-      {/* Mobile / Reduced-motion clean vertical thread stack */}
-      <div className="lp-board-mobile">
+      {/* Mobile / Reduced-motion vertical thread stack with progressive scroll-drawn filament */}
+      <div ref={mobileWrapRef} className="lp-board-mobile">
+        <span className="lp-board-mobile-track" aria-hidden="true" />
+        <span ref={mobileLineRef} className="lp-board-mobile-progress" aria-hidden="true" />
+
         <div className="lp-m-thread-item">
           <span className="lp-m-pin" aria-hidden="true" />
-          <span className="lp-station-meta">
-            <b>{copy.stations[0].step}</b> {copy.stations[0].label}
-          </span>
+          <div className="lp-station-head-row">
+            <span className="lp-station-meta">
+              <b>{copy.stations[0].step}</b> {copy.stations[0].label}
+            </span>
+            <button
+              type="button"
+              onClick={handleFloatingClipAction}
+              className={`lp-mv3-bar ${justClipped ? "is-clipped" : ""}`}
+            >
+              <i className="lp-mv3-dot" aria-hidden="true" />
+              <span>{justClipped ? copy.clippedPulseLabel : copy.clipActionLabel}</span>
+            </button>
+          </div>
           <p className="lp-station-quote" onMouseUp={handleSelectClip} onTouchEnd={handleSelectClip}>
             {copy.sentences.map((s, i) => (
               <span
@@ -471,7 +553,7 @@ export function ClipperChapter({ copy }: { copy: ChaptersCopy["clipper"] }) {
       </div>
 
       {/* Persistent bottom vault receipt + Chrome extension download */}
-      <div className="lp-clip-foot">
+      <div className={`lp-clip-foot ${justClipped ? "is-pulsing" : ""}`}>
         <div className="lp-vault" aria-live="polite">
           {clip ? (
             <p key={clip.n} className="lp-vault-line">

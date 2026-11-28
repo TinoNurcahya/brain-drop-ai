@@ -11,3 +11,8 @@ dist/
 Thumbs.db
 coverage/
 .vercel/
+
+# Agent and tool metadata
+.agents/
+.hallmark/
+

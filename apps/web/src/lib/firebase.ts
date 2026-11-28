@@ -47,18 +47,27 @@ export function initAppCheck(app: FirebaseApp = getFirebaseApp()): AppCheck | nu
     return appCheckInstance;
   }
 
+  // Skip network token exchange when running with the local demo fallback key
+  const configuredKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  const hasRealConfig =
+    Boolean(configuredKey) &&
+    configuredKey !== "AIzaSyDemoEvaluatorKey_GoogleBuildHybridAI";
+
+  if (!hasRealConfig) {
+    return null;
+  }
+
   try {
     // 1. Enable Debug Token for Hackathon Evaluators
     const isDevOrTest =
       process.env.NODE_ENV !== "production" ||
-      typeof location !== "undefined" &&
-        (location.hostname === "localhost" || location.hostname === "127.0.0.1");
+      (typeof location !== "undefined" &&
+        (location.hostname === "localhost" || location.hostname === "127.0.0.1"));
 
     if (isDevOrTest) {
       // Evaluator debug token bypass
       (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN =
         process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG_TOKEN || true;
-      console.log("[Firebase App Check] Debug token enabled for evaluator testing.");
     }
 
     // 2. Production ReCaptcha Enterprise or Debug Custom Provider

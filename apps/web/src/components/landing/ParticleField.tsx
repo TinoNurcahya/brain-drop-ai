@@ -10,6 +10,8 @@ export interface ParticleFieldProps {
   mobileCount: number;
   stageRef: React.MutableRefObject<number>;
   dark: boolean;
+  /** Enables sparse, calm right-focused drizzle at stage 0 before full particle density gathers on scroll. */
+  calmRain?: boolean;
   className?: string;
   onUnsupported?: () => void;
 }
@@ -20,6 +22,8 @@ const vertex = /* glsl */ `
   uniform float uSize;
   uniform float uPR;
   uniform float uRainW;
+  uniform float uCalmRain;
+  uniform float uRightFocus;
   uniform vec2 uMouse;
   attribute vec3 aT1;
   attribute vec3 aT2;
@@ -33,7 +37,7 @@ const vertex = /* glsl */ `
 
   void main() {
     float h = 13.0;
-    float speed = 1.4 + aRand.z * 2.4;
+    float speed = mix(1.4 + aRand.z * 2.4, 0.55 + aRand.z * 0.95, uCalmRain);
     vec3 rain = vec3((aRand.x - 0.5) * uRainW, 6.5 - mod(aRand.y * h + uTime * speed, h), (aRand.w - 0.5) * 5.0);
 
     float s1 = part(0.0);
@@ -54,10 +58,18 @@ const vertex = /* glsl */ `
     float f = 1.0 - smoothstep(0.0, 1.3, length(d));
     p.xy += normalize(d + 1e-4) * f * 0.55;
 
+    // Sparse, calm drizzle at stage 0 focused on the right side (keeping left typography clean)
+    float rainKeep = smoothstep(0.75, 0.90, aRand.w);
+    float rightZone = smoothstep(-uRainW * 0.12, uRainW * 0.14, rain.x);
+    float spatialMask = mix(1.0, mix(0.08, 1.0, rightZone), uRightFocus);
+    float calmMask = rainKeep * spatialMask;
+    float rainAlpha = mix(0.3 + aRand.w * 0.35, (0.24 + aRand.z * 0.36) * calmMask, uCalmRain);
+    float rainSizeScale = mix(1.0, mix(0.58, 1.0, settled), uCalmRain);
+
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = uSize * (0.45 + aRand.z * 0.9) * uPR * (10.0 / -mv.z);
-    vAlpha = mix(0.3 + aRand.w * 0.35, 0.55 + aRand.z * 0.45, settled);
+    gl_PointSize = uSize * rainSizeScale * (0.45 + aRand.z * 0.9) * uPR * (10.0 / -mv.z);
+    vAlpha = mix(rainAlpha, 0.55 + aRand.z * 0.45, settled);
     vMix = aRand.y;
   }
 `;
@@ -79,8 +91,8 @@ const fragment = /* glsl */ `
 function applyMaterialTheme(m: THREE.ShaderMaterial, dark: boolean) {
   m.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending;
   (m.uniforms.uColA.value as THREE.Color).set(dark ? "#79d9de" : "#116c74");
-  (m.uniforms.uColB.value as THREE.Color).set(dark ? "#d8ecee" : "#2f535a");
-  m.uniforms.uOpacity.value = dark ? 0.9 : 0.86;
+  (m.uniforms.uColB.value as THREE.Color).set(dark ? "#d8ecee" : "#1c1917");
+  m.uniforms.uOpacity.value = dark ? 0.9 : 0.92;
   m.needsUpdate = true;
 }
 
@@ -90,6 +102,7 @@ export function ParticleField({
   mobileCount,
   stageRef,
   dark,
+  calmRain = false,
   className,
   onUnsupported,
 }: ParticleFieldProps) {
@@ -153,6 +166,8 @@ export function ParticleField({
         uSize: { value: isMobile ? 7 : 6 },
         uPR: { value: pr },
         uRainW: { value: 16 },
+        uCalmRain: { value: calmRain ? 1 : 0 },
+        uRightFocus: { value: calmRain && !isMobile ? 1 : 0 },
         uMouse: { value: new THREE.Vector2(99, 99) },
         uColA: { value: new THREE.Color() },
         uColB: { value: new THREE.Color() },
@@ -244,7 +259,7 @@ export function ParticleField({
       renderer.domElement.remove();
       gpuRef.current = null;
     };
-  }, [count, mobileCount, stageRef]);
+  }, [count, mobileCount, stageRef, calmRain]);
 
   // Update synchronously inside ThemeProvider's flushSync so the iris ViewTransition snapshot already has new colors.
   useLayoutEffect(() => {

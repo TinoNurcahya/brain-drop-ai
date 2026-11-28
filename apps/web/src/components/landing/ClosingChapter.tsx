@@ -4,7 +4,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUp } from "lucide-react";
+import { ArrowRight, ArrowUp } from "lucide-react";
 import { RollingText } from "@/components/ui/RollingText";
 import type { ChaptersCopy } from "@/lib/landing-chapters";
 import { scrollToY } from "@/lib/smooth-scroll";
@@ -13,7 +13,7 @@ import { textShape } from "./shapes";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Closing: sticky curtain reveal on deep ink with magnetic CTA, colophon, and luminous particle wordmark. */
+/** Closing: balanced 3-zone sticky curtain reveal with closing thesis, magnetic CTA, hairline colophon, and luminous particle wordmark. */
 export function ClosingChapter({
   copy,
   dark = true,
@@ -26,8 +26,12 @@ export function ClosingChapter({
   const [webgl, setWebgl] = useState(true);
 
   const buildTargets = useCallback(async (n: number, isMobile: boolean, halfW: number) => {
-    const w = Math.min(halfW * (isMobile ? 2.02 : 2.08), 42);
-    const text = await textShape(n, "BrainDrop", w, { cx: 0, cy: isMobile ? -0.1 : -0.25, scale: 1 });
+    const w = Math.min(halfW * (isMobile ? 1.82 : 1.56), 24.5);
+    const text = await textShape(n, "BrainDrop", w, {
+      cx: 0,
+      cy: isMobile ? 0.48 : 0.78,
+      scale: 1,
+    });
     return [text];
   }, []);
 
@@ -40,12 +44,11 @@ export function ClosingChapter({
     }
 
     const useStickyCurtain =
-      window.matchMedia("(min-width: 1024px) and (min-height: 680px)").matches;
+      window.matchMedia("(min-width: 1025px) and (min-height: 680px)").matches;
     const mainStage = document.getElementById("landing-main-stage");
 
     const ctx = gsap.context(() => {
       if (useStickyCurtain && mainStage) {
-        // As mainStage lifts upward from bottom to top, particles gather into BrainDrop.
         ScrollTrigger.create({
           trigger: mainStage,
           start: "bottom bottom",
@@ -74,38 +77,39 @@ export function ClosingChapter({
     <footer
       id="closing"
       ref={sectionRef}
-      data-surface="ink"
-      className="lp-closing lp-ink"
+      data-surface="void"
+      className="lp-closing lp-void"
     >
+      {/* Zone 1: Editorial Closing Thesis + Primary Magnetic CTA + Extension Action */}
       <div className="lp-closing-top">
-        <Link href={copy.ctaHref} className="group lp-closing-cta" data-magnetic>
-          <RollingText text={copy.cta} />
-        </Link>
+        <p className="lp-closing-thesis">{copy.thesis}</p>
+
+        <div className="lp-closing-actions">
+          <Link href={copy.ctaHref} className="group lp-closing-cta" data-magnetic>
+            <RollingText text={copy.cta} />
+            <ArrowRight strokeWidth={1.75} className="lp-closing-cta-arrow" aria-hidden="true" />
+          </Link>
+
+          <a href={copy.extensionHref} download className="group lp-quiet-link">
+            <RollingText text={copy.extensionCta} />
+            <span aria-hidden="true">↓</span>
+          </a>
+        </div>
       </div>
 
+      {/* Zone 2: Hairline Colophon & Quick Module Links */}
       <div className="lp-closing-foot">
-        <ul className="lp-closing-links">
-          {copy.links.map((lnk) => (
-            <li key={lnk.label}>
-              {lnk.download ? (
-                <a href={lnk.href} download className="group">
-                  <RollingText text={lnk.label} />
-                </a>
-              ) : (
+        <div className="lp-closing-links-row">
+          <ul className="lp-closing-links">
+            {copy.links.map((lnk) => (
+              <li key={lnk.label}>
                 <Link href={lnk.href} className="group">
                   <RollingText text={lnk.label} />
                 </Link>
-              )}
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
 
-        <div className="lp-closing-meta">
-          <div className="lp-closing-meta-left">
-            <span>{copy.legal}</span>
-            <span className="lp-closing-dot" aria-hidden="true">·</span>
-            <span>{copy.author}</span>
-          </div>
           <button
             type="button"
             className="group lp-back-top"
@@ -115,8 +119,17 @@ export function ClosingChapter({
             <ArrowUp size={13} aria-hidden="true" />
           </button>
         </div>
+
+        <div className="lp-closing-meta">
+          <div className="lp-closing-meta-left">
+            <span>{copy.legal}</span>
+            <span className="lp-closing-dot" aria-hidden="true">·</span>
+            <span>{copy.author}</span>
+          </div>
+        </div>
       </div>
 
+      {/* Zone 3: Luminous 11,000-Particle BrainDrop Wordmark */}
       <div className="lp-closing-mark">
         {webgl && (
           <ParticleField
@@ -125,7 +138,7 @@ export function ClosingChapter({
             count={11000}
             mobileCount={2100}
             stageRef={stageRef}
-            dark={dark}
+            dark={true}
             onUnsupported={() => setWebgl(false)}
           />
         )}

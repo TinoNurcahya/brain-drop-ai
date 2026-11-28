@@ -34,9 +34,12 @@ export interface LandingCopy {
     links: { label: string; target: string }[];
     cta: string;
     language: string;
+    sectionsBtn: string;
+    closeBtn: string;
   };
   hero: {
     lines: string[];
+    italicWord: string;
     sub: string;
     cta: string;
     secondaryCta: string;
@@ -44,15 +47,18 @@ export interface LandingCopy {
   };
   story: {
     rail: string[];
+    stageReadouts: [string, string, string, string];
     acts: LandingAct[];
   };
   product: {
     title: string;
+    italicWord: string;
     sub: string;
     tabs: LandingProductTab[];
     scenes: {
       capture: {
         modes: [string, string, string];
+        modeStats: [string, string, string];
         sourceDomain: string;
         sourceTitle: string;
         excerpt: string;
@@ -71,11 +77,15 @@ export interface LandingCopy {
           id: "summarize" | "eli5" | "related";
           label: string;
           latency: string;
+          savedNote: string;
           output: string;
         }[];
       };
       graph: {
         inspectorLabel: string;
+        clusterLabels: Record<"nano" | "core" | "study", string>;
+        degreeLabel: string;
+        affinityLabel: string;
         nodes: {
           id: string;
           label: string;
@@ -84,11 +94,15 @@ export interface LandingCopy {
           y: number;
           summary: string;
           connections: number;
+          affinity: string;
         }[];
         edges: [string, string, boolean?][];
       };
       flashcards: {
         boxLabels: [string, string, string];
+        deckMeta: string;
+        frontLabel: string;
+        backLabel: string;
         flipHint: string;
         question: string;
         answer: string;
@@ -110,16 +124,25 @@ export interface LandingCopy {
         nanoBarLabel: string;
         cloudBarLabel: string;
         heatmapTitle: string;
+        dayPrefix: string;
+        opsSuffix: string;
+        keptSuffix: string;
       };
     };
   };
   why: {
     lines: string[];
+    italicWord: string;
     beats: { title: string; body: string }[];
     labels: { device: string; gate: string; nano: string; cloud: string };
     sandbox: {
       title: string;
       sampleLabel: string;
+      customTabLabel: string;
+      customPlaceholder: string;
+      resetLabel: string;
+      liveEngineLabel: string;
+      zeroPiiNote: string;
       localBtn: string;
       cloudBtn: string;
       rawLabel: string;
@@ -145,9 +168,12 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
       ],
       cta: "Open workspace",
       language: "Switch language",
+      sectionsBtn: "Chapters",
+      closeBtn: "Close",
     },
     hero: {
       lines: ["Ideas fall", "like rain."],
+      italicWord: "rain.",
       sub: "Save passages from anywhere on the web, let local intelligence connect them inside your browser, and recall what matters without giving away your privacy.",
       cta: "Start writing",
       secondaryCta: "Quick capture",
@@ -155,6 +181,12 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
     },
     story: {
       rail: ["Rain", "Capture", "Connect", "Remember"],
+      stageReadouts: [
+        "9,000 WebGL particles · Unstructured browser stream",
+        "Chrome MV3 Clipper · URL & context preserved",
+        "Gemini Nano 4 · ~38ms in-browser memory linking",
+        "3-Box Leitner SRS · Sanitized Gemini 3.8 Flash",
+      ],
       acts: [
         {
           title: "Capture",
@@ -172,7 +204,8 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
     },
     product: {
       title: "See it work.",
-      sub: "Try all five parts of the workspace right here, or step directly into the app.",
+      italicWord: "work.",
+      sub: "Try all five instruments of the workspace right here, or step directly into the app.",
       tabs: [
         {
           id: "capture",
@@ -218,6 +251,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
       scenes: {
         capture: {
           modes: ["Web clip", "Quick note", "Voice memo"],
+          modeStats: ["21 words · 12ms parse", "18 words · instant local", "00:14 audio · Web Speech API"],
           sourceDomain: "developer.chrome.com/docs/ai/built-in",
           sourceTitle: "Running language models inside the browser",
           excerpt:
@@ -227,21 +261,22 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
           quickDraft:
             "Keeping everyday tagging and summaries on the device cuts cloud usage dramatically while feeling instantaneous.",
           tags: ["browser-ai", "local-first", "research"],
-          savedLabel: "Saved with source link",
+          savedLabel: "Saved with provenance",
         },
         notes: {
           docTitle: "Hybrid local and cloud reasoning",
-          docMeta: "Edited 2 minutes ago",
+          docMeta: "Edited 2 minutes ago · Local vault",
           docBody:
             "Everyday writing, tagging, and summarizing happen locally inside Chrome. Deeper synthesis across long collections is only sent out when you ask.",
           docQuote:
             "Before a multi-note request leaves the browser, personal identifiers and credentials are automatically masked.",
-          copilotTitle: "Local assistant",
+          copilotTitle: "Local Nano assistant",
           actions: [
             {
               id: "summarize",
               label: "Summarize",
               latency: "29ms",
+              savedNote: "1.4 KB kept on-device · 0 network calls",
               output:
                 "Routine reading and writing tasks stay inside browser memory (~29ms), while deeper multi-note synthesis uses sanitized cloud requests.",
             },
@@ -249,6 +284,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               id: "eli5",
               label: "Simplify",
               latency: "34ms",
+              savedNote: "1.4 KB kept on-device · 0 network calls",
               output:
                 "Quick tasks happen privately on your own laptop; when you ask the cloud for heavier help, sensitive details are blacked out first.",
             },
@@ -256,13 +292,21 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               id: "related",
               label: "Related notes",
               latency: "38ms",
+              savedNote: "3 local links matched · IndexedDB",
               output:
                 "Found 3 connected notes: Browser language models (0.94), Client redaction rules (0.91), and Force-directed layouts (0.86).",
             },
           ],
         },
         graph: {
-          inspectorLabel: "Hover or select a node to trace its neighbors",
+          inspectorLabel: "Hover or select a node to trace its semantic neighbors",
+          clusterLabels: {
+            nano: "On-Device Tier",
+            core: "Hybrid Core",
+            study: "Retention Loop",
+          },
+          degreeLabel: "Edges",
+          affinityLabel: "Affinity",
           nodes: [
             {
               id: "nano",
@@ -272,6 +316,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 34,
               summary: "Runs summaries, tags, and note matching inside browser memory.",
               connections: 4,
+              affinity: "0.96",
             },
             {
               id: "router",
@@ -281,6 +326,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 48,
               summary: "Keeps private tasks on-device and prepares sanitized cloud requests.",
               connections: 5,
+              affinity: "0.98",
             },
             {
               id: "pii",
@@ -290,6 +336,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 74,
               summary: "Masks emails, keys, phone numbers, IDs, cards, and IP addresses.",
               connections: 3,
+              affinity: "0.94",
             },
             {
               id: "flash",
@@ -299,6 +346,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 28,
               summary: "Compiles structured research briefs across multiple sanitized notes.",
               connections: 3,
+              affinity: "0.91",
             },
             {
               id: "srs",
@@ -308,6 +356,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 72,
               summary: "Schedules 1-day, 3-day, and 7-day active recall reviews.",
               connections: 3,
+              affinity: "0.89",
             },
             {
               id: "clipper",
@@ -317,6 +366,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 62,
               summary: "Saves highlighted passages together with their source page.",
               connections: 2,
+              affinity: "0.93",
             },
           ],
           edges: [
@@ -331,8 +381,11 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
           ],
         },
         flashcards: {
-          boxLabels: ["Daily", "Every 3 days", "Weekly"],
-          flipHint: "Click card to turn over",
+          boxLabels: ["Box 1 · Daily", "Box 2 · 3 days", "Box 3 · Weekly"],
+          deckMeta: "Card 04 / 12 · Browser AI Lifecycle",
+          frontLabel: "Question",
+          backLabel: "Verified Answer",
+          flipHint: "Click or press Space to turn over",
           question: "How does BrainDrop release browser memory right after a local model finishes?",
           answer:
             "Each model session is created for the task at hand and immediately closed inside a finally block with session.destroy().",
@@ -353,12 +406,16 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
           latencyTitle: "Average response time",
           nanoBarLabel: "On device (38ms)",
           cloudBarLabel: "Cloud synthesis (680ms)",
-          heatmapTitle: "Last 30 days of notes",
+          heatmapTitle: "Last 30 days — hover any bar to inspect",
+          dayPrefix: "Day",
+          opsSuffix: "local Nano ops",
+          keptSuffix: "KB kept local",
         },
       },
     },
     why: {
       lines: ["Private by default.", "Powerful on demand."],
+      italicWord: "demand.",
       beats: [
         {
           title: "Your notes stay here.",
@@ -376,12 +433,18 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
       labels: {
         device: "Your device",
         gate: "Redaction gate",
-        nano: "Gemini Nano",
-        cloud: "Gemini Flash",
+        nano: "Gemini Nano 4",
+        cloud: "Gemini 3.8 Flash",
       },
       sandbox: {
         title: "Try the privacy check",
         sampleLabel: "Sample note",
+        customTabLabel: "Test your own text",
+        customPlaceholder:
+          "Type an email (name@company.com), +6281234567890, IP 10.24.8.12, or token=secret_key_1234567890abcdef...",
+        resetLabel: "Reset sample",
+        liveEngineLabel: "Live @braindrop/core regex (<2ms)",
+        zeroPiiNote: "0 sensitive patterns detected — clean payload",
         localBtn: "Run locally (38ms)",
         cloudBtn: "Mask and ask cloud",
         rawLabel: "Original note in browser",
@@ -430,9 +493,12 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
       ],
       cta: "Buka workspace",
       language: "Ganti bahasa",
+      sectionsBtn: "Bab",
+      closeBtn: "Tutup",
     },
     hero: {
       lines: ["Ide jatuh", "seperti hujan."],
+      italicWord: "hujan.",
       sub: "Simpan kutipan dari halaman mana pun, biarkan AI di browser menghubungkannya secara lokal, dan ingat kembali saat dibutuhkan tanpa mengorbankan privasi.",
       cta: "Mulai menulis",
       secondaryCta: "Tangkap cepat",
@@ -440,6 +506,12 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
     },
     story: {
       rail: ["Hujan", "Tangkap", "Hubungkan", "Ingat"],
+      stageReadouts: [
+        "9.000 partikel WebGL · Aliran bacaan mentah di browser",
+        "Chrome MV3 Clipper · URL & konteks sumber terjaga",
+        "Gemini Nano 4 · ~38ms penautan lokal di memori browser",
+        "3-Box Leitner SRS · Gemini 3.8 Flash tersensor",
+      ],
       acts: [
         {
           title: "Tangkap",
@@ -457,7 +529,8 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
     },
     product: {
       title: "Lihat cara kerjanya.",
-      sub: "Coba langsung kelima bagian workspace di bawah ini, atau masuk langsung ke aplikasinya.",
+      italicWord: "kerjanya.",
+      sub: "Coba langsung kelima instrumen workspace di bawah ini, atau masuk langsung ke aplikasinya.",
       tabs: [
         {
           id: "capture",
@@ -503,6 +576,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
       scenes: {
         capture: {
           modes: ["Klip web", "Catatan cepat", "Memo suara"],
+          modeStats: ["20 kata · 12ms parse", "18 kata · lokal instan", "00:14 suara · Web Speech API"],
           sourceDomain: "developer.chrome.com/docs/ai/built-in",
           sourceTitle: "Menjalankan model bahasa langsung di dalam browser",
           excerpt:
@@ -512,21 +586,22 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
           quickDraft:
             "Menjalankan penandaan topik dan ringkasan harian di perangkat membuat respons terasa seketika sekaligus hemat kuota cloud.",
           tags: ["browser-ai", "lokal", "riset"],
-          savedLabel: "Tersimpan beserta tautan asal",
+          savedLabel: "Tersimpan beserta sumber",
         },
         notes: {
           docTitle: "Penalaran lokal dan cloud yang seimbang",
-          docMeta: "Diedit 2 menit lalu",
+          docMeta: "Diedit 2 menit lalu · Vault lokal",
           docBody:
             "Menulis, memberi tag, dan meringkas bacaan berjalan lokal di dalam Chrome. Sintesis panjang lintas-catatan hanya dikirim saat kamu memintanya.",
           docQuote:
             "Sebelum permintaan lintas-catatan keluar dari browser, alamat email, nomor kontak, dan kunci rahasia disensor otomatis.",
-          copilotTitle: "Asisten lokal",
+          copilotTitle: "Asisten Nano lokal",
           actions: [
             {
               id: "summarize",
               label: "Ringkas",
               latency: "29ms",
+              savedNote: "1.4 KB tetap lokal · 0 panggilan jaringan",
               output:
                 "Tugas baca-tulis harian diproses di memori browser (~29ms), sedangkan sintesis lintas-catatan memakai permintaan cloud yang telah disensor.",
             },
@@ -534,6 +609,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               id: "eli5",
               label: "Sederhanakan",
               latency: "34ms",
+              savedNote: "1.4 KB tetap lokal · 0 panggilan jaringan",
               output:
                 "Pekerjaan cepat selesai langsung di laptopmu; saat kamu butuh bantuan cloud untuk merangkum banyak bahan, data rahasia ditutupi lebih dulu.",
             },
@@ -541,6 +617,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               id: "related",
               label: "Catatan terkait",
               latency: "38ms",
+              savedNote: "3 tautan lokal cocok · IndexedDB",
               output:
                 "Ditemukan 3 catatan terhubung: Model bahasa di browser (0.94), Aturan sensor klien (0.91), dan Tata letak graf fisika (0.86).",
             },
@@ -548,6 +625,13 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
         },
         graph: {
           inspectorLabel: "Arahkan atau pilih titik untuk menelusuri hubungannya",
+          clusterLabels: {
+            nano: "Lapisan Lokal",
+            core: "Inti Hibrida",
+            study: "Siklus Ingatan",
+          },
+          degreeLabel: "Tautan",
+          affinityLabel: "Kedekatan",
           nodes: [
             {
               id: "nano",
@@ -557,6 +641,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 34,
               summary: "Menjalankan ringkasan, tag, dan pencocokan catatan di memori browser.",
               connections: 4,
+              affinity: "0.96",
             },
             {
               id: "router",
@@ -566,6 +651,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 48,
               summary: "Menjaga tugas pribadi tetap lokal dan menyiapkan permintaan cloud yang aman.",
               connections: 5,
+              affinity: "0.98",
             },
             {
               id: "pii",
@@ -575,6 +661,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 74,
               summary: "Menyensor email, kunci API, telepon, NIK, kartu, dan alamat IP.",
               connections: 3,
+              affinity: "0.94",
             },
             {
               id: "flash",
@@ -584,6 +671,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 28,
               summary: "Menyusun rangkuman riset utuh dari beberapa catatan yang telah disensor.",
               connections: 3,
+              affinity: "0.91",
             },
             {
               id: "srs",
@@ -593,6 +681,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 72,
               summary: "Mengatur jadwal ulasan 1 hari, 3 hari, dan 7 hari.",
               connections: 3,
+              affinity: "0.89",
             },
             {
               id: "clipper",
@@ -602,6 +691,7 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
               y: 62,
               summary: "Menyimpan sorotan kalimat lengkap dengan alamat halaman asalnya.",
               connections: 2,
+              affinity: "0.93",
             },
           ],
           edges: [
@@ -616,8 +706,11 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
           ],
         },
         flashcards: {
-          boxLabels: ["Harian", "Tiap 3 hari", "Mingguan"],
-          flipHint: "Klik kartu untuk membalik",
+          boxLabels: ["Box 1 · Harian", "Box 2 · 3 hari", "Box 3 · Mingguan"],
+          deckMeta: "Kartu 04 / 12 · Siklus AI Browser",
+          frontLabel: "Pertanyaan",
+          backLabel: "Jawaban Terverifikasi",
+          flipHint: "Klik atau tekan Spasi untuk membalik",
           question: "Bagaimana BrainDrop membebaskan memori browser sesaat setelah model lokal selesai menjawab?",
           answer:
             "Setiap sesi model dibuat seperlunya lalu langsung ditutup di dalam blok finally menggunakan session.destroy().",
@@ -638,12 +731,16 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
           latencyTitle: "Rata-rata waktu jawab",
           nanoBarLabel: "Di perangkat (38ms)",
           cloudBarLabel: "Sintesis cloud (680ms)",
-          heatmapTitle: "Aktivitas catatan 30 hari terakhir",
+          heatmapTitle: "Aktivitas 30 hari — arahkan ke batang untuk rincian",
+          dayPrefix: "Hari",
+          opsSuffix: "operasi Nano lokal",
+          keptSuffix: "KB tetap lokal",
         },
       },
     },
     why: {
       lines: ["Privat sejak awal.", "Bertenaga saat diminta."],
+      italicWord: "diminta.",
       beats: [
         {
           title: "Catatanmu tetap di sini.",
@@ -661,12 +758,18 @@ export const LANDING_COPY: Record<Locale, LandingCopy> = {
       labels: {
         device: "Perangkatmu",
         gate: "Gerbang sensor",
-        nano: "Gemini Nano",
-        cloud: "Gemini Flash",
+        nano: "Gemini Nano 4",
+        cloud: "Gemini 3.8 Flash",
       },
       sandbox: {
         title: "Coba pemeriksaan privasi",
         sampleLabel: "Contoh catatan",
+        customTabLabel: "Uji teksmu sendiri",
+        customPlaceholder:
+          "Ketik email (nama@kantor.id), +6281234567890, IP 10.24.8.12, atau token=kunci_rahasia_1234567890abcdef...",
+        resetLabel: "Reset contoh",
+        liveEngineLabel: "Regex @braindrop/core langsung (<2ms)",
+        zeroPiiNote: "0 pola sensitif terdeteksi — teks bersih",
         localBtn: "Proses lokal (38ms)",
         cloudBtn: "Sensor lalu tanya cloud",
         rawLabel: "Catatan asli di browser",

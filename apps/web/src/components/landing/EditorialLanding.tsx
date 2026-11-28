@@ -75,6 +75,13 @@ export function EditorialLanding({ homeHref = "/" }: { homeHref?: string }) {
   return (
     <div ref={root} className="lp -mt-20 sm:-mt-24">
       <div className="lp-grain" aria-hidden="true" />
+
+      {/* Architectural monograph plumb-line margin guides */}
+      <div className="lp-plumb-grid" aria-hidden="true">
+        <span className="lp-plumb-left" />
+        <span className="lp-plumb-right" />
+      </div>
+
       <IntroLoader caption={ch.introCaption} onRevealStart={handleRevealStart} />
       <LandingHeader homeHref={homeHref} introReady={introReady} />
       <ChapterHud names={ch.hud} />

@@ -13,10 +13,10 @@ const IDS = [
   "closing",
 ];
 
-/** Quiet right-edge dot index (LifeMemory-inspired) + 1.5px total scroll hairline. */
+/** Frameless right-edge architectural tick-mark ruler + 1.5px total scroll hairline. */
 export function ChapterHud({ names }: { names: string[] }) {
   const [active, setActive] = useState(0);
-  const [surface, setSurface] = useState<"ink" | "paper">("ink");
+  const [surface, setSurface] = useState<"ink" | "paper" | "void">("ink");
   const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,22 +25,25 @@ export function ChapterHud({ names }: { names: string[] }) {
       raf = 0;
       const mid = window.innerHeight * 0.5;
       let cur = 0;
-      let curSurface: "ink" | "paper" = "ink";
+      let curSurface: "ink" | "paper" | "void" = "ink";
 
-      // Evaluate chapters 0..5 inside the main stage.
       for (let i = 0; i < IDS.length - 1; i++) {
         const el = document.getElementById(IDS[i]);
         if (el && el.getBoundingClientRect().top <= mid) {
           cur = i;
-          curSurface = el.dataset.surface === "paper" ? "paper" : "ink";
+          curSurface =
+            el.dataset.surface === "void"
+              ? "void"
+              : el.dataset.surface === "paper"
+                ? "paper"
+                : "ink";
         }
       }
 
-      // Evaluate sticky-curtain closing chapter (ink) via mainStage bottom exit.
       const mainStage = document.getElementById("landing-main-stage");
       if (mainStage && mainStage.getBoundingClientRect().bottom <= mid) {
         cur = IDS.length - 1;
-        curSurface = "ink";
+        curSurface = "void";
       }
 
       setActive((prev) => (prev === cur ? prev : cur));
@@ -82,16 +85,19 @@ export function ChapterHud({ names }: { names: string[] }) {
           <button
             key={id}
             type="button"
-            className="lp-side-dot-btn"
+            className="lp-side-tick-btn"
             aria-label={`0${i + 1} ${names[i] ?? ""}`}
             aria-current={active === i ? "step" : undefined}
             onClick={() => handleJump(i)}
           >
-            <span className="lp-side-dot" aria-hidden="true" />
             <span className="lp-side-name">
               <span className="lp-side-num">0{i + 1}</span>
               {names[i]}
             </span>
+            <span className="lp-side-idx-num" aria-hidden="true">
+              0{i + 1}
+            </span>
+            <span className="lp-side-tick" aria-hidden="true" />
           </button>
         ))}
       </nav>

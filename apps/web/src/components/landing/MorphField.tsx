@@ -67,8 +67,8 @@ const fragment = /* glsl */ `
 function applyTheme(m: THREE.ShaderMaterial, dark: boolean) {
   m.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending;
   (m.uniforms.uColA.value as THREE.Color).set(dark ? "#79d9de" : "#116c74");
-  (m.uniforms.uColB.value as THREE.Color).set(dark ? "#d8ecee" : "#2f535a");
-  m.uniforms.uOpacity.value = dark ? 0.88 : 0.82;
+  (m.uniforms.uColB.value as THREE.Color).set(dark ? "#d8ecee" : "#1c1917");
+  m.uniforms.uOpacity.value = dark ? 0.88 : 0.88;
   m.needsUpdate = true;
 }
 

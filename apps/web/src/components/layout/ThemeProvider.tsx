@@ -14,8 +14,8 @@ type ThemeContextValue = {
 };
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-// Runs before the first paint; storage access may be disabled by the browser.
-export const themeInitScript = `(function(){var t;try{t=localStorage.getItem('braindrop-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var r=document.documentElement;r.dataset.theme=t;r.classList.toggle('dark',t==='dark');r.style.colorScheme=t;var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==='dark'?'#112736':'#FBF9F5'})()`;
+// Runs before the first paint; defaults to Light Theme (Archival Monograph) when no manual preference is stored.
+export const themeInitScript = `(function(){var t;try{t=localStorage.getItem('braindrop-theme')}catch(e){}if(t!=='light'&&t!=='dark')t='light';var r=document.documentElement;r.dataset.theme=t;r.classList.toggle('dark',t==='dark');r.style.colorScheme=t;var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==='dark'?'#112736':'#FBF9F5'})()`;
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
@@ -24,7 +24,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const manual = useRef(false);
   const transitioning = useRef(false);
 
@@ -36,7 +36,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const sync = () => {
       const stored = storedTheme();
       manual.current = stored === "light" || stored === "dark";
-      const next = stored === "light" || stored === "dark" ? stored : media.matches ? "dark" : "light";
+      const next: Theme = stored === "light" || stored === "dark" ? stored : "light";
       applyTheme(next);
       setTheme(next);
     };

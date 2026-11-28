@@ -1,5 +1,5 @@
-import { EditorialLanding } from "@/components/landing/EditorialLanding";
+import { ExperimentLanding } from "@/components/landing-exp/ExperimentLanding";
 
 export default function LandingPage() {
-  return <EditorialLanding homeHref="/" />;
+  return <ExperimentLanding />;
 }

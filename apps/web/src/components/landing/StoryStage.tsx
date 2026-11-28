@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { RollingText } from "@/components/ui/RollingText";
 import type { LandingCopy } from "@/lib/landing-copy";
 import { scrollToY } from "@/lib/smooth-scroll";
@@ -39,7 +39,6 @@ export function StoryStage({
     return [dropShape(n, l), graphShape(n, l), cardsShape(n, { ...l, scale: l.scale * 0.85 })];
   }, []);
 
-  // Synchronize hero entrance with the IntroLoader 'o' aperture reveal.
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -128,6 +127,7 @@ export function StoryStage({
   };
 
   const heroHidden = act >= 0 && !reduced;
+  const activeStageIdx = Math.max(0, Math.min(3, act + 1));
 
   return (
     <section
@@ -144,29 +144,52 @@ export function StoryStage({
           mobileCount={1800}
           stageRef={stageRef}
           dark={dark}
+          calmRain
           onUnsupported={() => setWebgl(false)}
         />
       ) : (
         <div className="lp-particles lp-fallback-constellation" aria-hidden="true" />
       )}
 
-      <div className={`lp-hero-copy ${heroHidden ? "is-hidden" : ""}`}>
-        <h1 className="lp-h1" aria-label={copy.hero.lines.join(" ")}>
-          <SplitLines lines={copy.hero.lines} />
-        </h1>
+      <div className={`lp-hero-stage ${heroHidden ? "is-hidden" : ""}`}>
+        <div className="lp-hero-copy">
+          <h1 className="lp-h1" aria-label={copy.hero.lines.join(" ")}>
+            <SplitLines lines={copy.hero.lines} italicWords={[copy.hero.italicWord]} />
+          </h1>
 
-        <p className="lp-sub lp-hero-fade">{copy.hero.sub}</p>
+          <p className="lp-sub lp-hero-fade">{copy.hero.sub}</p>
 
-        <div className="lp-hero-actions lp-hero-fade">
-          <Link href="/notes" className="group lp-enter-link" data-magnetic>
-            <RollingText text={copy.hero.cta} />
-            <span className="lp-enter-arrow" aria-hidden="true">→</span>
-          </Link>
-          <Link href="/capture" className="group lp-quiet-link">
-            <RollingText text={copy.hero.secondaryCta} />
-            <ArrowUpRight size={14} aria-hidden="true" />
-          </Link>
+          <div className="lp-hero-actions lp-hero-fade">
+            <Link href="/notes" className="group lp-enter-link" data-magnetic>
+              <RollingText text={copy.hero.cta} />
+              <ArrowRight size={17} className="lp-enter-arrow" aria-hidden="true" />
+            </Link>
+            <Link href="/capture" className="group lp-quiet-link">
+              <RollingText text={copy.hero.secondaryCta} />
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </Link>
+          </div>
         </div>
+
+        <figure className="lp-hero-folio">
+          <div className="lp-hero-folio-frame lp-hero-fade">
+            <i className="lp-reg-tick is-tl" aria-hidden="true" />
+            <i className="lp-reg-tick is-tr" aria-hidden="true" />
+            <i className="lp-reg-tick is-bl" aria-hidden="true" />
+            <i className="lp-reg-tick is-br" aria-hidden="true" />
+            <img
+              src="/images/preview-notes.jpg"
+              alt="BrainDrop AI local-first research workspace"
+              className="lp-hero-folio-img"
+              decoding="async"
+              fetchPriority="high"
+            />
+          </div>
+          <figcaption className="lp-hero-folio-meta lp-hero-fade">
+            <span className="lp-hero-folio-index">01</span>
+            <span className="lp-hero-folio-readout">{copy.story.stageReadouts[0]}</span>
+          </figcaption>
+        </figure>
       </div>
 
       <div className="lp-acts">
@@ -176,8 +199,10 @@ export function StoryStage({
             className={`lp-act ${act === i ? "is-active" : ""}`}
             aria-hidden={!reduced && act !== i}
           >
-            <span className="lp-num">0{i + 1}</span>
-            <h2>{a.title}</h2>
+            <span className="lp-num">0{i + 1} / 03</span>
+            <h2>
+              <em>{a.title}</em>.
+            </h2>
             <p>{a.body}</p>
           </article>
         ))}
@@ -189,7 +214,7 @@ export function StoryStage({
             <button
               key={label}
               type="button"
-              className={act + 1 === i ? "is-active" : ""}
+              className={activeStageIdx === i ? "is-active" : ""}
               onClick={() => jumpTo(i)}
             >
               <span>0{i}</span>
@@ -199,9 +224,17 @@ export function StoryStage({
         </nav>
       )}
 
-      <span className={`lp-scroll-hint ${heroHidden ? "is-hidden" : ""}`}>
-        {copy.hero.hint} ↓
-      </span>
+      {/* Synchronized bottom editorial baseline: scroll hint + technical stage telemetry */}
+      <div className="lp-story-foot">
+        <span className={`lp-scroll-hint ${heroHidden ? "is-hidden" : ""}`}>
+          {copy.hero.hint} ↓
+        </span>
+        {!reduced && (
+          <span key={activeStageIdx} className="lp-stage-readout" aria-live="polite">
+            {copy.story.stageReadouts[activeStageIdx]}
+          </span>
+        )}
+      </div>
     </section>
   );
 }

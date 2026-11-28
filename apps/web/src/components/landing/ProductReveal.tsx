@@ -10,16 +10,28 @@ import { SplitLines } from "./SplitLines";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const INTRO = 0.08;
+const INTRO = 0.1;
 
 export function ProductReveal({ copy }: { copy: LandingCopy["product"]; dark?: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const triggerRef = useRef<ScrollTrigger | null>(null);
+  const prevIdxRef = useRef(0);
   const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const [seq, setSeq] = useState(0);
   const [reduced, setReduced] = useState(false);
   const n = copy.tabs.length;
+
+  const updateActive = (nextIdx: number) => {
+    if (prevIdxRef.current === nextIdx) return;
+    const nextDir: 1 | -1 = nextIdx >= prevIdxRef.current ? 1 : -1;
+    prevIdxRef.current = nextIdx;
+    setDirection(nextDir);
+    setActive(nextIdx);
+    setSeq((s) => s + 1);
+  };
 
   useLayoutEffect(() => {
     const el = sectionRef.current;
@@ -38,7 +50,7 @@ export function ProductReveal({ copy }: { copy: LandingCopy["product"]; dark?: b
           duration: 1.05,
           ease: "expo.out",
           stagger: 0.06,
-          scrollTrigger: { trigger: el, start: "top 75%" },
+          scrollTrigger: { trigger: el, start: "top 78%", toggleActions: "play none none none" },
         }
       );
 
@@ -48,20 +60,32 @@ export function ProductReveal({ copy }: { copy: LandingCopy["product"]; dark?: b
         scrollTrigger: {
           trigger: el,
           start: "top top",
-          end: "+=1200",
+          end: "+=1250",
           pin: true,
           scrub: true,
           onUpdate: (self) => {
+            // Smooth 90° left-anchored inset expand during the initial 10% INTRO window, clearing to "none" once open
+            if (plateRef.current) {
+              if (self.progress < INTRO) {
+                const t = self.progress / INTRO;
+                const tb = (4 * (1 - t)).toFixed(2);
+                const r = (14 * (1 - t)).toFixed(2);
+                plateRef.current.style.clipPath = `inset(${tb}% ${r}% ${tb}% 0%)`;
+              } else if (plateRef.current.style.clipPath) {
+                plateRef.current.style.clipPath = "";
+              }
+            }
+
             const p = (self.progress - INTRO) / (1 - INTRO);
             const clamped = Math.max(0, Math.min(0.9999, p));
             const f = clamped * n;
             const idx = p <= 0 ? 0 : Math.floor(f);
             const frac = p <= 0 ? 0 : f - idx;
 
-            setActive((prev) => (prev === idx ? prev : idx));
+            updateActive(idx);
 
             if (plateRef.current) {
-              const y = (0.5 - clamped) * 14;
+              const y = (0.5 - clamped) * 12;
               plateRef.current.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
             }
 
@@ -85,7 +109,7 @@ export function ProductReveal({ copy }: { copy: LandingCopy["product"]; dark?: b
   const select = (i: number) => {
     const st = triggerRef.current;
     if (!st) {
-      setActive(i);
+      updateActive(i);
       return;
     }
     const p = INTRO + ((i + 0.1) / n) * (1 - INTRO);
@@ -102,7 +126,7 @@ export function ProductReveal({ copy }: { copy: LandingCopy["product"]; dark?: b
     >
       <div className="lp-pr-copy">
         <h2 className="lp-h2 lp-pr-title" aria-label={copy.title}>
-          <SplitLines lines={[copy.title]} />
+          <SplitLines lines={[copy.title]} italicWords={[copy.italicWord]} />
         </h2>
         <p className="lp-pr-sub">{copy.sub}</p>
 
@@ -134,7 +158,7 @@ export function ProductReveal({ copy }: { copy: LandingCopy["product"]; dark?: b
 
       <div className="lp-pr-visual">
         <div ref={plateRef} className="lp-pr-stage-wrap">
-          <WorkspaceScenes activeIndex={active} copy={copy} />
+          <WorkspaceScenes activeIndex={active} direction={direction} seq={seq} copy={copy} />
         </div>
       </div>
     </section>

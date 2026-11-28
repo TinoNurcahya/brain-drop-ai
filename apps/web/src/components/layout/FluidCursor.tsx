@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 interface SparkParticle {
   x: number;
@@ -14,9 +15,11 @@ interface SparkParticle {
 }
 
 export function FluidCursor() {
+  const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (pathname === "/") return;
     // Disable on touch devices or reduced motion
     if (
       typeof window === "undefined" ||
@@ -204,7 +207,9 @@ export function FluidCursor() {
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseleave", onMouseLeave);
     };
-  }, []);
+  }, [pathname]);
+
+  if (pathname === "/") return null;
 
   return (
     <canvas
